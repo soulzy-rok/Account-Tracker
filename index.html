@@ -42,10 +42,13 @@ th:first-child,td:first-child{text-align:left}th{font-size:12px;color:var(--mut)
 <div class="sum" id="sum"></div>
 <div class="card"><h2>Update from a screenshot</h2>
 <label>Profile screenshot (or press Ctrl+V to paste one)</label><input id="shot" type="file" accept="image/*">
-<div class="grid" style="margin-top:10px"><div><label>Kill points (check before saving)</label><input id="kpv" inputmode="numeric"></div></div>
+<div class="grid" style="margin-top:10px"><div><label>Kill points (check before saving)</label><input id="kpv" inputmode="numeric"></div>
+<div><label>T1 kills</label><input id="t1v" inputmode="numeric"></div><div><label>T2 kills</label><input id="t2v" inputmode="numeric"></div>
+<div><label>T3 kills</label><input id="t3v" inputmode="numeric"></div><div><label>T4 kills</label><input id="t4v" inputmode="numeric"></div>
+<div><label>T5 kills</label><input id="t5v" inputmode="numeric"></div></div>
 <div class="row"><button id="add">Save snapshot</button><button class="ghost" id="base">Set baseline to now</button><button class="ghost" id="csv">Export CSV</button><button class="ghost" id="clear">Clear</button></div>
 <p class="note" id="extra"></p></div>
-<div class="card"><h2>History</h2><div class="scroll"><table><thead><tr><th>Time</th><th>Kill points</th><th>Change</th><th>Power</th><th>Dead</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></div>
+<div class="card"><h2>History</h2><div class="scroll"><table><thead><tr><th>Time</th><th>Kill points</th><th>Change</th><th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>Power</th><th>Dead</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></div>
 <details class="card"><summary>Reading accuracy (optional)</summary>
 <p class="note">Default: free OCR (Tesseract.js) in your browser. For much better reading, add an Anthropic API key. It is stored only in this browser and requests go directly to Anthropic, so use it only on your own device. Usage is billed to your key.</p>
 <div class="grid"><div><label>API key</label><input id="key" type="password" autocomplete="off"></div><div><label>Model</label><input id="model"></div></div>
@@ -92,31 +95,32 @@ async function ocr(file){var url=await shrinkP(file,1800,.92);
     var j=await r.json();if(!r.ok)throw new Error(j.error&&j.error.message||'API error');return j.content.map(function(c){return c.text||''}).join('\n')}
   return (await Tesseract.recognize(url,'eng')).data.text}
 var PF=[['power',/power\D{0,6}(\d[\d, ]{5,})/i],['kp',/kill\s*points?\D{0,6}(\d[\d, ]{5,})/i],['dead',/\bdead\D{0,6}(\d[\d, ]{3,})/i],['acc',/acclaim\D{0,6}(\d[\d, ]{3,})/i],
-  ['killed',/most\s*killed\D{0,6}(\d[\d, ]{3,})/i],['healed',/most\s*healed\D{0,6}(\d[\d, ]{3,})/i],['lost',/most\s*lost\D{0,6}(\d[\d, ]{3,})/i]];
+  ['killed',/most\s*killed\D{0,6}(\d[\d, ]{3,})/i],['t1',/(?:tier\s*1|t1)\s*(?:units?\s*)?kills?\D{0,6}(\d[\d, ]{2,})/i],['t2',/(?:tier\s*2|t2)\s*(?:units?\s*)?kills?\D{0,6}(\d[\d, ]{2,})/i],['t3',/(?:tier\s*3|t3)\s*(?:units?\s*)?kills?\D{0,6}(\d[\d, ]{2,})/i],['t4',/(?:tier\s*4|t4)\s*(?:units?\s*)?kills?\D{0,6}(\d[\d, ]{2,})/i],['t5',/(?:tier\s*5|t5)\s*(?:units?\s*)?kills?\D{0,6}(\d[\d, ]{2,})/i],['healed',/most\s*healed\D{0,6}(\d[\d, ]{3,})/i],['lost',/most\s*lost\D{0,6}(\d[\d, ]{3,})/i]];
 function parseProfile(t){var o={};PF.forEach(function(p){var m=p[1].exec(t);if(m){var d=m[1].replace(/\D/g,'');if(d)o[p[0]]=d}});return o}
 /* tracker */
 var pending={};
 function trk(){var a=S.snaps.slice().sort(function(x,y){return x.ts-y.ts}),base=a[0];a.forEach(function(e){if(e.ts<=S.baseFrom)base=e});
   var last=a[a.length-1],prev=a[a.length-2];function c(t,v){return '<div><span>'+t+'</span><b>'+v+'</b></div>'}
-  $('sum').innerHTML=last?c('Current kill points',fmt(last.kp))+c('Gain since baseline','+'+fmt(last.kp-base.kp))+c('Last change','+'+fmt(prev?last.kp-prev.kp:0)):'';
+  $('sum').innerHTML=last?c('Current kill points',fmt(last.kp))+c('Gain since baseline','+'+fmt(last.kp-base.kp))+c('Last change','+'+fmt(prev?last.kp-prev.kp:0))+['t1','t2','t3','t4','t5'].map(function(k){return c(k.toUpperCase()+' kills',last[k]==null?'–':fmt(last[k]))}).join(''):'';
   $('rows').innerHTML=a.slice().reverse().map(function(e,i,r){var p=r[i+1];
-    return '<tr><td>'+new Date(e.ts).toLocaleString()+'</td><td>'+fmt(e.kp)+'</td><td class="pos">'+(p?'+'+fmt(e.kp-p.kp):'–')+'</td><td>'+(e.power?fmt(e.power):'–')+'</td><td>'+(e.dead?fmt(e.dead):'–')+'</td><td><button class="ghost" data-del="'+e.ts+'">×</button></td></tr>'}).join('')}
+    return '<tr><td>'+new Date(e.ts).toLocaleString()+'</td><td>'+fmt(e.kp)+'</td><td class="pos">'+(p?'+'+fmt(e.kp-p.kp):'–')+'</td>'+['t1','t2','t3','t4','t5'].map(function(k){return '<td>'+(e[k]==null?'–':fmt(e[k]))+'</td>'}).join('')+'<td>'+(e.power?fmt(e.power):'–')+'</td><td>'+(e.dead?fmt(e.dead):'–')+'</td><td><button class="ghost" data-del="'+e.ts+'">×</button></td></tr>'}).join('')}
 async function onShot(f){msg('Reading screenshot…');
   try{var o=parseProfile(await ocr(f));pending=o;$('kpv').value=o.kp||'';
-    var x=['power','dead','acc','killed','healed','lost'].filter(function(k){return o[k]}).map(function(k){return k+' '+fmt(o[k])});
+    ['t1','t2','t3','t4','t5'].forEach(function(k){$(k+'v').value=o[k]||''});
+    var x=['power','dead','acc','killed','healed','lost','t1','t2','t3','t4','t5'].filter(function(k){return o[k]}).map(function(k){return k+' '+fmt(o[k])});
     $('extra').textContent=x.length?'Also detected: '+x.join(', ')+'. These are saved with the snapshot and used in the showcase.':'';
     if(o.kp)msg('Found kill points: '+fmt(o.kp)+'. Check the number, then press Save snapshot.');else msg('No kill points found. Try a clearer screenshot, enable the API key option, or type the number.',1)}
   catch(x){msg('Could not read the screenshot: '+x.message,1)}}
 $('shot').onchange=function(e){if(e.target.files[0])onShot(e.target.files[0])};
 document.addEventListener('paste',function(e){var f=[].slice.call(e.clipboardData.files||[]).filter(function(x){return x.type.indexOf('image')===0})[0];if(f&&!$('tr').hidden)onShot(f)});
 $('add').onclick=function(){var v=parseInt(String($('kpv').value).replace(/\D/g,''),10);if(isNaN(v))return msg('Enter or detect kill points first.',1);
-  var e={ts:Date.now(),kp:v};['power','dead'].forEach(function(k){if(pending[k])e[k]=+pending[k]});S.snaps.push(e);
+  var e={ts:Date.now(),kp:v};['t1','t2','t3','t4','t5','power','dead'].forEach(function(k){var raw=k.charAt(0)==='t'?$(k+'v').value:pending[k];if(raw!==''&&raw!=null)e[k]=+String(raw).replace(/\D/g,'')});S.snaps.push(e);
   ['power','dead','acc','killed','healed','lost'].forEach(function(k){if(pending[k])S.sh[k]=pending[k]});S.sh.kp=String(v);
-  pending={};$('kpv').value='';$('shot').value='';$('extra').textContent='';save();trk();build();draw();msg('Snapshot saved.')};
+  pending={};['kpv','t1v','t2v','t3v','t4v','t5v'].forEach(function(id){$(id).value=''});$('shot').value='';$('extra').textContent='';save();trk();build();draw();msg('Snapshot saved.')};
 $('rows').onclick=function(e){var d=e.target.dataset.del;if(d){S.snaps=S.snaps.filter(function(s){return String(s.ts)!==d});save();trk()}};
 $('base').onclick=function(){S.baseFrom=Date.now();save();trk();msg('Baseline set to now.')};
 $('clear').onclick=function(){if(confirm('Delete all tracker history?')){S.snaps=[];S.baseFrom=0;save();trk()}};
-$('csv').onclick=function(){var l=['time,kill_points,power,dead'];S.snaps.forEach(function(e){l.push([new Date(e.ts).toISOString(),e.kp,e.power||'',e.dead||''].join(','))});
+$('csv').onclick=function(){var l=['time,kill_points,t1_kills,t2_kills,t3_kills,t4_kills,t5_kills,power,dead'];S.snaps.forEach(function(e){l.push([new Date(e.ts).toISOString(),e.kp,e.t1==null?'':e.t1,e.t2==null?'':e.t2,e.t3==null?'':e.t3,e.t4==null?'':e.t4,e.t5==null?'':e.t5,e.power||'',e.dead||''].join(','))});
   var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([l.join('\n')],{type:'text/csv'}));a.download='kp-history.csv';a.click()};
 $('key').value=S.key||'';$('model').value=S.model||'';
 $('savekey').onclick=function(){S.key=$('key').value.trim();S.model=$('model').value.trim()||'claude-sonnet-5-5';save();msg(S.key?'API reading enabled.':'Using free OCR.')};
