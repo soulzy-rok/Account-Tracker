@@ -1,4 +1,3 @@
-# Deploys the static site to GitLab Pages on every push to the default branch
 pages:
   stage: deploy
   script:
