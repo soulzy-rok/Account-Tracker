@@ -91,12 +91,35 @@ function shrinkP(f,m,q){return new Promise(function(res){shrink(f,m,q,res)})}
 async function ocr(file){var url=await shrinkP(file,1800,.92);
   if(S.key){var r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':S.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
     body:JSON.stringify({model:S.model||'claude-sonnet-5-5',max_tokens:1500,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:url.split(',')[1]}},
-    {type:'text',text:'Transcribe all visible text exactly, one line per text row, in reading order. Keep numbers and section headings exactly as shown. Output only the text.'}]}]})});
+    {type:'text',text:'Read all visible text carefully. Transcribe every statistic label and its number, keeping each label with its value on the same line where possible. Preserve tier kill labels exactly, including variants such as T1, T 1, Tier 1, T1 Units Killed, Tier 1 Kills, and the equivalent T2–T5 labels. Preserve commas in numbers. Do not omit small stat rows. Output only the transcription.'}]}]})});
     var j=await r.json();if(!r.ok)throw new Error(j.error&&j.error.message||'API error');return j.content.map(function(c){return c.text||''}).join('\n')}
   return (await Tesseract.recognize(url,'eng')).data.text}
-var PF=[['power',/power\D{0,6}(\d[\d, ]{5,})/i],['kp',/kill\s*points?\D{0,6}(\d[\d, ]{5,})/i],['dead',/\bdead\D{0,6}(\d[\d, ]{3,})/i],['acc',/acclaim\D{0,6}(\d[\d, ]{3,})/i],
-  ['killed',/most\s*killed\D{0,6}(\d[\d, ]{3,})/i],['t1',/(?:tier\s*1|t1)\s*(?:units?\s*)?kills?\D{0,6}(\d[\d, ]{2,})/i],['t2',/(?:tier\s*2|t2)\s*(?:units?\s*)?kills?\D{0,6}(\d[\d, ]{2,})/i],['t3',/(?:tier\s*3|t3)\s*(?:units?\s*)?kills?\D{0,6}(\d[\d, ]{2,})/i],['t4',/(?:tier\s*4|t4)\s*(?:units?\s*)?kills?\D{0,6}(\d[\d, ]{2,})/i],['t5',/(?:tier\s*5|t5)\s*(?:units?\s*)?kills?\D{0,6}(\d[\d, ]{2,})/i],['healed',/most\s*healed\D{0,6}(\d[\d, ]{3,})/i],['lost',/most\s*lost\D{0,6}(\d[\d, ]{3,})/i]];
-function parseProfile(t){var o={};PF.forEach(function(p){var m=p[1].exec(t);if(m){var d=m[1].replace(/\D/g,'');if(d)o[p[0]]=d}});return o}
+var PF=[['power',/power\D{0,10}(\d[\d, ]{4,})/i],['kp',/kill\s*points?\D{0,12}(\d[\d, ]{4,})/i],['dead',/\bdead\D{0,10}(\d[\d, ]{3,})/i],['acc',/acclaim\D{0,10}(\d[\d, ]{3,})/i],
+  ['killed',/most\s*killed\D{0,10}(\d[\d, ]{3,})/i],['healed',/most\s*healed\D{0,10}(\d[\d, ]{3,})/i],['lost',/most\s*lost\D{0,10}(\d[\d, ]{3,})/i]];
+function cleanStatNumber(v){var d=String(v||'').replace(/[^0-9]/g,'');return d||''}
+function tierStat(lines,n){
+  var tier='(?:tier\\s*'+n+'|t\\s*'+n+')';
+  var kill='(?:kills?|killed|units?\\s*killed|troops?\\s*killed)';
+  var patterns=[
+    new RegExp(tier+'\\s*(?:units?\\s*|troops?\\s*)?'+kill+'\\s*[:：-]?\\s*([0-9][0-9, .]*)','i'),
+    new RegExp('(?:units?|troops?)\\s*(?:killed|kills?)\\s*'+tier+'\\s*[:：-]?\\s*([0-9][0-9, .]*)','i'),
+    new RegExp(tier+'\\s*[:：-]\\s*([0-9][0-9, .]*)','i')
+  ];
+  for(var i=0;i<lines.length;i++){
+    var line=lines[i].replace(/\s+/g,' ').trim();
+    for(var j=0;j<patterns.length;j++){var m=patterns[j].exec(line);if(m){var v=cleanStatNumber(m[1]);if(v)return v}}
+    if(new RegExp(tier+'\\s*(?:units?|troops?)?\\s*(?:kills?|killed)','i').test(line)&&i+1<lines.length){
+      var next=lines[i+1].match(/(?:^|\s)([0-9][0-9, .]*)(?:\s|$)/);if(next){var v2=cleanStatNumber(next[1]);if(v2)return v2}
+    }
+  }
+  return '';
+}
+function parseProfile(t){
+  var o={},lines=String(t||'').split(/\r?\n/).map(function(x){return x.trim()}).filter(Boolean);
+  PF.forEach(function(p){var m=p[1].exec(t);if(m){var d=cleanStatNumber(m[1]);if(d)o[p[0]]=d}});
+  for(var n=1;n<=5;n++){var v=tierStat(lines,n);if(v)o['t'+n]=v}
+  return o
+}
 /* tracker */
 var pending={};
 function trk(){var a=S.snaps.slice().sort(function(x,y){return x.ts-y.ts}),base=a[0];a.forEach(function(e){if(e.ts<=S.baseFrom)base=e});
@@ -109,7 +132,7 @@ async function onShot(f){msg('Reading screenshot…');
     ['t1','t2','t3','t4','t5'].forEach(function(k){$(k+'v').value=o[k]||''});
     var x=['power','dead','acc','killed','healed','lost','t1','t2','t3','t4','t5'].filter(function(k){return o[k]}).map(function(k){return k+' '+fmt(o[k])});
     $('extra').textContent=x.length?'Also detected: '+x.join(', ')+'. These are saved with the snapshot and used in the showcase.':'';
-    if(o.kp)msg('Found kill points: '+fmt(o.kp)+'. Check the number, then press Save snapshot.');else msg('No kill points found. Try a clearer screenshot, enable the API key option, or type the number.',1)}
+    if(o.kp){var found=['t1','t2','t3','t4','t5'].filter(function(k){return o[k]}).map(function(k){return k.toUpperCase()+' '+fmt(o[k])});var missing=['t1','t2','t3','t4','t5'].filter(function(k){return !o[k]}).map(function(k){return k.toUpperCase()});msg('Found KP '+fmt(o.kp)+(found.length?'; '+found.join(', '):'')+'. '+(missing.length?'Still missing '+missing.join(', ')+'. Check the screenshot or enter those counts manually. ':'All tier counts detected. ')+'Check values, then Save snapshot.');}else msg('No kill points found. Try a clearer screenshot, enable the API key option, or type the number.',1)}
   catch(x){msg('Could not read the screenshot: '+x.message,1)}}
 $('shot').onchange=function(e){if(e.target.files[0])onShot(e.target.files[0])};
 document.addEventListener('paste',function(e){var f=[].slice.call(e.clipboardData.files||[]).filter(function(x){return x.type.indexOf('image')===0})[0];if(f&&!$('tr').hidden)onShot(f)});
