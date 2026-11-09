@@ -19,11 +19,23 @@ button.ghost{background:transparent;color:var(--ac)}.row{display:flex;gap:8px;fl
 th,td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--bd);white-space:nowrap}th{font-size:12px;color:var(--mut);font-weight:600}
 th:first-child,td:first-child{text-align:left}td.pos{color:var(--pos);font-weight:600}
 .bar{height:8px;background:var(--bar);border-radius:4px;min-width:2px}.note{font-size:12px;color:var(--mut);margin-top:8px}
+.note strong{color:var(--fg)}input[type=file]{padding:6px}
 </style></head><body><main>
 <h1>Kill Point Tracker</h1>
 <p class="sub">Rise of Kingdoms · snapshot-based tracking of kill point gains per player</p>
 
-<div class="card"><h2>Add a snapshot</h2>
+
+<div class="card"><h2>Upload a statistics screenshot</h2>
+<p class="note">Choose a screenshot of the player statistics. The tracker will try to read the T1–T5 kill counts and fill in the fields below. Check every value before importing.</p>
+<div class="grid">
+<div><label for="statsImage">Statistics image</label><input id="statsImage" type="file" accept="image/*"></div>
+<div style="display:flex;align-items:end"><button id="scanImage" type="button" class="ghost">Read screenshot</button></div>
+</div>
+<img id="imagePreview" alt="Selected statistics screenshot" hidden style="display:none;max-width:100%;max-height:320px;object-fit:contain;margin-top:12px;border-radius:8px">
+<p id="ocrStatus" class="note" aria-live="polite">Image processing happens in your browser. The first scan downloads the OCR engine.</p>
+<details id="ocrDetails" style="margin-top:8px" hidden><summary>View detected text</summary><pre id="ocrText" style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px"></pre></details>
+</div>
+\n<div class="card"><h2>Add a snapshot</h2>
 <div class="grid">
 <div><label>Player</label><input id="name" list="pl" placeholder="Governor name"><datalist id="pl"></datalist></div>
 <div><label>T1 kills</label><input id="t1" type="number" min="0" value="0"></div>
