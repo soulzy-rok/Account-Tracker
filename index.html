@@ -100,10 +100,12 @@ function cleanStatNumber(v){var d=String(v||'').replace(/[^0-9]/g,'');return d||
 function tierStat(lines,n){
   var tier='(?:tier\\s*'+n+'|t\\s*'+n+')';
   var kill='(?:kills?|killed|units?\\s*killed|troops?\\s*killed)';
+  var roman=['I','II','III','IV','V'][n-1];
   var patterns=[
-    new RegExp(tier+'\\s*(?:units?\\s*|troops?\\s*)?'+kill+'\\s*[:：-]?\\s*([0-9][0-9, .]*)','i'),
-    new RegExp('(?:units?|troops?)\\s*(?:killed|kills?)\\s*'+tier+'\\s*[:：-]?\\s*([0-9][0-9, .]*)','i'),
-    new RegExp(tier+'\\s*[:：-]\\s*([0-9][0-9, .]*)','i')
+    new RegExp(tier+'\\s*(?:units?\\s*|troops?\\s*)?'+kill+'\\s*[:：-]?\\s*([0-9][0-9,]*)','i'),
+    new RegExp('(?:units?|troops?)\\s*(?:killed|kills?)\\s*'+tier+'\\s*[:：-]?\\s*([0-9][0-9,]*)','i'),
+    new RegExp(tier+'\\s*[:：-]\\s*([0-9][0-9,]*)','i'),
+    new RegExp('^\\s*'+roman+'\\s+([0-9][0-9,]*)','i')
   ];
   for(var i=0;i<lines.length;i++){
     var line=lines[i].replace(/\s+/g,' ').trim();
