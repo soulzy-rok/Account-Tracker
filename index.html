@@ -35,7 +35,7 @@ th:first-child,td:first-child{text-align:left}td.pos{color:var(--pos);font-weigh
 <p id="ocrStatus" class="note" aria-live="polite">Image processing happens in your browser. The first scan downloads the OCR engine.</p>
 <details id="ocrDetails" style="margin-top:8px" hidden><summary>View detected text</summary><pre id="ocrText" style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px"></pre></details>
 </div>
-\n<div class="card"><h2>Add a snapshot</h2>
+<div class="card"><h2>Add a snapshot</h2>
 <div class="grid">
 <div><label>Player</label><input id="name" list="pl" placeholder="Governor name"><datalist id="pl"></datalist></div>
 <div><label>T1 kills</label><input id="t1" type="number" min="0" value="0"></div>
@@ -55,6 +55,7 @@ th:first-child,td:first-child{text-align:left}td.pos{color:var(--pos);font-weigh
 <div class="row"><button class="ghost" id="base">Set new baseline (now)</button><button class="ghost" id="csv">Export CSV</button><button class="ghost" id="clear">Clear all</button></div>
 <p class="note">Kill points = T1×1 + T2×2 + T3×4 + T4×10 + T5×20, as far as I know. Check the weights against your kingdom’s rules and adjust W in the code if needed. Data stays in this browser only.</p></div>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
 var W=[1,2,4,10,20],KEY='rok-kp',S={entries:[],baseFrom:0};
 try{var raw=localStorage.getItem(KEY);if(raw)S=JSON.parse(raw)}catch(e){}
@@ -85,5 +86,63 @@ $('base').onclick=function(){S.baseFrom=Date.now();save();render()};
 $('clear').onclick=function(){if(confirm('Delete all tracked data?')){S={entries:[],baseFrom:0};save();render()}};
 $('csv').onclick=function(){var l=['player,time,t1,t2,t3,t4,t5,kill_points'];S.entries.forEach(function(e){l.push([e.n,new Date(e.ts).toISOString()].concat(e.k,kp(e)).join(','))});
   var b=new Blob([l.join('\n')],{type:'text/csv'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='kp-tracker.csv';a.click()};
+
+// Screenshot OCR: requires an internet connection to load Tesseract.js and its language data.
+$('scanImage').onclick=async function(){
+  var file=$('statsImage').files[0];
+  if(!file){$('ocrStatus').textContent='Please choose a screenshot first.';return;}
+  if(!window.Tesseract){$('ocrStatus').textContent='The OCR engine could not be loaded. Check your internet connection, then reload the page.';return;}
+  if(!file.type||file.type.indexOf('image/')!==0){$('ocrStatus').textContent='Please select an image file.';return;}
+  var btn=$('scanImage');btn.disabled=true;
+  $('ocrStatus').textContent='Loading OCR engine and reading screenshot… this can take a little while the first time.';
+  try{
+    var result=await Tesseract.recognize(file,'eng',{
+      logger:function(m){
+        if(m.status==='recognizing text')$('ocrStatus').textContent='Reading screenshot: '+Math.round((m.progress||0)*100)+'%';
+        else if(m.status==='loading language traineddata')$('ocrStatus').textContent='Downloading English recognition data…';
+      }
+    });
+    var text=result.data.text||'';
+    $('ocrText').textContent=text;
+    $('ocrDetails').hidden=false;
+    var normalized=text.replace(/[|]/g,'1').replace(/[oO]/g,'0');
+    var found=0;
+    // Match common labels such as T1 12345, Tier 1: 12,345, or T4 Kills 12345.
+    for(var tier=1;tier<=5;tier++){
+      var label=new RegExp('(?:TIER\\\\s*'+tier+'|T\\\\s*'+tier+'|'+tier+'\\\\s*'+'(?:ST|ND|RD|TH)?\\\\s*TIER)\\\\s*(?:KILLS?|TROOPS?\\\\s*KILLED)?\\\\s*[:=\\\\-]?\\\\s*([0-9][0-9, .]*)','i');
+      var m=normalized.match(label);
+      if(!m){
+        var lines=normalized.split(/\\r?\\n/);
+        for(var j=0;j<lines.length;j++){
+          if(new RegExp('(?:TIER\\\\s*'+tier+'|T\\\\s*'+tier+'|'+tier+'\\\\s*(?:ST|ND|RD|TH)?\\\\s*TIER)','i').test(lines[j])){
+            var nums=lines[j].match(/[0-9][0-9, .]*/g);
+            if(nums&&nums.length){m=[lines[j],nums[nums.length-1]];break;}
+            if(lines[j+1]){var next=lines[j+1].match(/[0-9][0-9, .]*/);if(next){m=[lines[j]+' '+lines[j+1],next[0]];break;}}
+          }
+        }
+      }
+      if(m){
+        var value=parseInt(m[1].replace(/[^0-9]/g,''),10);
+        if(!isNaN(value)){$('t'+tier).value=value;found++;}
+      }
+    }
+    // Try to identify a governor name from a line containing a name label.
+    var nameMatch=normalized.match(/(?:governor|player|name)\\s*[:\\-]\\s*([^\\r\\n]+)/i);
+    if(nameMatch&&nameMatch[1])$('name').value=nameMatch[1].trim().slice(0,60);
+    $('ocrStatus').textContent=found
+      ? 'Screenshot read. Automatically filled '+found+' of 5 tier values. Check every field and correct anything that is wrong before adding the snapshot.'
+      : 'Screenshot text was read, but the T1–T5 values could not be identified reliably. Open “View detected text” and enter the values manually.';
+  }catch(err){
+    $('ocrStatus').textContent='Could not read the image: '+(err&&err.message?err.message:'unknown error')+'. Try another screenshot or a clearer image.';
+  }finally{btn.disabled=false;}
+};
+$('statsImage').onchange=function(){
+  var file=this.files[0],img=$('imagePreview');
+  if(!file){img.hidden=true;img.removeAttribute('src');return;}
+  if(!file.type||file.type.indexOf('image/')!==0){$('ocrStatus').textContent='Please select an image file.';return;}
+  img.src=URL.createObjectURL(file);img.hidden=false;img.style.display='block';
+  $('ocrStatus').textContent='Screenshot selected. Click “Read screenshot” to scan it.';
+};
+
 render();
 </script></body></html>
