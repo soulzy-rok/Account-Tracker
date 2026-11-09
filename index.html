@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RoK Kill Point Tracker</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1d1b16;--card:#fff;--mut:#6b675c;--ac:#8a5a00;--bd:#ddd8c8;--bar:#d9a441;--pos:#1f7a3d;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#16150f;--fg:#efece2;--card:#201f17;--mut:#a29d8c;--ac:#e8b44f;--bd:#37352a;--bar:#c98f22;--pos:#5fd08a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#16150f;--fg:#efece2;--card:#201f17;--mut:#a29d8c;--ac:#e8b44f;--bd:#37352a;--bar:#c98f22;--pos:#5fd08a;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:16px}
+main{max-width:980px;margin:0 auto}h1{font-size:22px;margin:0 0 4px}h2{font-size:16px;margin:0 0 10px}
+.sub{color:var(--mut);margin:0 0 16px}.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+label{display:block;font-size:12px;color:var(--mut);margin-bottom:2px}
+input,textarea{width:100%;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--fg);font:inherit}
+textarea{min-height:80px;font-family:ui-monospace,Menlo,monospace;font-size:13px}
+button{padding:8px 14px;border-radius:8px;border:1px solid var(--ac);background:var(--ac);color:var(--bg);font:inherit;font-weight:600;cursor:pointer}
+button.ghost{background:transparent;color:var(--ac)}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--bd);white-space:nowrap}th{font-size:12px;color:var(--mut);font-weight:600}
+th:first-child,td:first-child{text-align:left}td.pos{color:var(--pos);font-weight:600}
+.bar{height:8px;background:var(--bar);border-radius:4px;min-width:2px}.note{font-size:12px;color:var(--mut);margin-top:8px}
+</style></head><body><main>
+<h1>Kill Point Tracker</h1>
+<p class="sub">Rise of Kingdoms · snapshot-based tracking of kill point gains per player</p>
+
+<div class="card"><h2>Add a snapshot</h2>
+<div class="grid">
+<div><label>Player</label><input id="name" list="pl" placeholder="Governor name"><datalist id="pl"></datalist></div>
+<div><label>T1 kills</label><input id="t1" type="number" min="0" value="0"></div>
+<div><label>T2 kills</label><input id="t2" type="number" min="0" value="0"></div>
+<div><label>T3 kills</label><input id="t3" type="number" min="0" value="0"></div>
+<div><label>T4 kills</label><input id="t4" type="number" min="0" value="0"></div>
+<div><label>T5 kills</label><input id="t5" type="number" min="0" value="0"></div></div>
+<div class="row"><button id="add">Add snapshot</button></div>
+<details style="margin-top:12px"><summary>Bulk paste</summary>
+<label style="margin-top:8px">One player per line: name, T1, T2, T3, T4, T5 (comma, semicolon or tab separated, no thousands separators)</label>
+<textarea id="bulk" placeholder="Alice,120000,340000,900000,2500000,400000"></textarea>
+<div class="row"><button class="ghost" id="bulkAdd">Import lines</button></div></details></div>
+
+<div class="card"><h2>Leaderboard</h2>
+<div class="scroll"><table><thead><tr><th>Player</th><th>Latest KP</th><th>Gain since baseline</th><th>Last change</th><th>T4 gain</th><th>T5 gain</th><th style="width:160px"></th></tr></thead><tbody id="rows"></tbody></table></div>
+<p class="note" id="empty">No data yet. Add a baseline snapshot for each player, then add new snapshots as the event goes on.</p>
+<div class="row"><button class="ghost" id="base">Set new baseline (now)</button><button class="ghost" id="csv">Export CSV</button><button class="ghost" id="clear">Clear all</button></div>
+<p class="note">Kill points = T1×1 + T2×2 + T3×4 + T4×10 + T5×20, as far as I know. Check the weights against your kingdom’s rules and adjust W in the code if needed. Data stays in this browser only.</p></div>
+</main>
+<script>
+var W=[1,2,4,10,20],KEY='rok-kp',S={entries:[],baseFrom:0};
+try{var raw=localStorage.getItem(KEY);if(raw)S=JSON.parse(raw)}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function kp(e){return e.k.reduce(function(a,v,i){return a+v*W[i]},0)}
+function fmt(n){return n.toLocaleString('en-US')}
+function $(id){return document.getElementById(id)}
+function add(name,k){name=(name||'').trim();if(!name||k.some(function(v){return isNaN(v)||v<0}))return false;S.entries.push({n:name,ts:Date.now(),k:k});return true}
+function render(){
+  var by={};S.entries.forEach(function(e){(by[e.n]=by[e.n]||[]).push(e)});
+  var rows=Object.keys(by).map(function(n){
+    var a=by[n].sort(function(x,y){return x.ts-y.ts}),last=a[a.length-1],prev=a[a.length-2]||last,base=a[0];
+    a.forEach(function(e){if(e.ts<=S.baseFrom)base=e});
+    return{n:n,kp:kp(last),gain:kp(last)-kp(base),d:kp(last)-kp(prev),t4:last.k[3]-base.k[3],t5:last.k[4]-base.k[4]}});
+  rows.sort(function(a,b){return b.gain-a.gain});
+  var max=Math.max.apply(null,rows.map(function(r){return r.gain}).concat([1]));
+  $('rows').innerHTML=rows.map(function(r){return '<tr><td>'+esc(r.n)+'</td><td>'+fmt(r.kp)+'</td><td class="pos">+'+fmt(r.gain)+'</td><td>+'+fmt(r.d)+'</td><td>+'+fmt(r.t4)+'</td><td>+'+fmt(r.t5)+'</td><td><div class="bar" style="width:'+Math.max(2,r.gain/max*100)+'%"></div></td></tr>'}).join('');
+  $('empty').style.display=rows.length?'none':'block';
+  $('pl').innerHTML=Object.keys(by).map(function(n){return '<option value="'+esc(n)+'">'}).join('');
+}
+function esc(s){return s.replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+$('add').onclick=function(){var k=[1,2,3,4,5].map(function(i){return parseInt($('t'+i).value,10)});
+  if(add($('name').value,k)){save();render();[1,2,3,4,5].forEach(function(i){$('t'+i).value=0})}};
+$('bulkAdd').onclick=function(){var c=0;$('bulk').value.split('\n').forEach(function(l){var p=l.split(/[,;\t]/).map(function(x){return x.trim()});
+  if(p.length>=6&&add(p[0],p.slice(1,6).map(function(x){return parseInt(x.replace(/\s/g,''),10)})))c++});
+  if(c){$('bulk').value='';save();render()}};
+$('base').onclick=function(){S.baseFrom=Date.now();save();render()};
+$('clear').onclick=function(){if(confirm('Delete all tracked data?')){S={entries:[],baseFrom:0};save();render()}};
+$('csv').onclick=function(){var l=['player,time,t1,t2,t3,t4,t5,kill_points'];S.entries.forEach(function(e){l.push([e.n,new Date(e.ts).toISOString()].concat(e.k,kp(e)).join(','))});
+  var b=new Blob([l.join('\n')],{type:'text/csv'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='kp-tracker.csv';a.click()};
+render();
+</script></body></html>
