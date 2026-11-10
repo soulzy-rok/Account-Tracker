@@ -17,7 +17,7 @@ button.ghost{background:transparent;color:var(--ac)}.row{display:flex;gap:8px;fl
 [hidden]{display:none!important}.tabs{display:flex;gap:8px;margin-bottom:14px}
 .sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:14px}
 .sum div{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px}.sum b{display:block;font-size:20px}.sum span{font-size:12px;color:var(--mut)}
-.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:560px}th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--bd);white-space:nowrap}
+.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:900px}th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--bd);white-space:nowrap}
 th:first-child,td:first-child{text-align:left}th{font-size:12px;color:var(--mut)}td.pos{color:var(--pos);font-weight:600}
 .note{font-size:12px;color:var(--mut);margin-top:8px}.cmd{border:1px solid var(--bd);border-radius:10px;padding:10px;margin-top:10px}
 #msg{min-height:20px;font-size:14px;margin-bottom:10px}.pv{overflow:auto;border:1px solid var(--bd);border-radius:12px}
@@ -41,14 +41,12 @@ th:first-child,td:first-child{text-align:left}th{font-size:12px;color:var(--mut)
 <section id="tr">
 <div class="sum" id="sum"></div>
 <div class="card"><h2>Update from a screenshot</h2>
-<label>Profile screenshot (or press Ctrl+V to paste one)</label><input id="shot" type="file" accept="image/*">
-<div class="grid" style="margin-top:10px"><div><label>Kill points (check before saving)</label><input id="kpv" inputmode="numeric"></div>
-<div><label>T1 kills</label><input id="t1v" inputmode="numeric"></div><div><label>T2 kills</label><input id="t2v" inputmode="numeric"></div>
-<div><label>T3 kills</label><input id="t3v" inputmode="numeric"></div><div><label>T4 kills</label><input id="t4v" inputmode="numeric"></div>
-<div><label>T5 kills</label><input id="t5v" inputmode="numeric"></div></div>
+<label>Screenshot of the Kill Statistics popup (open it by tapping the “i” next to Kill Points), or press Ctrl+V to paste one</label><input id="shot" type="file" accept="image/*">
+<div class="grid" style="margin-top:10px"><div><label>Kill points</label><input id="kpv" inputmode="numeric"></div><div><label>T1 kills</label><input id="t1v" inputmode="numeric"></div><div><label>T2 kills</label><input id="t2v" inputmode="numeric"></div><div><label>T3 kills</label><input id="t3v" inputmode="numeric"></div><div><label>T4 kills</label><input id="t4v" inputmode="numeric"></div><div><label>T5 kills</label><input id="t5v" inputmode="numeric"></div></div>
 <div class="row"><button id="add">Save snapshot</button><button class="ghost" id="base">Set baseline to now</button><button class="ghost" id="csv">Export CSV</button><button class="ghost" id="clear">Clear</button></div>
 <p class="note" id="extra"></p></div>
-<div class="card"><h2>History</h2><div class="scroll"><table><thead><tr><th>Time</th><th>Kill points</th><th>Change</th><th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>Power</th><th>Dead</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></div>
+<div class="card" id="tcard" hidden><h2>Kills by tier</h2><div class="scroll"><table><thead><tr><th></th><th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th></tr></thead><tbody id="trows"></tbody></table></div></div>
+<div class="card"><h2>History</h2><div class="scroll"><table><thead><tr><th>Time</th><th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>Kill points</th><th>Change</th><th>Power</th><th>Dead</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></div>
 <details class="card"><summary>Reading accuracy (optional)</summary>
 <p class="note">Default: free OCR (Tesseract.js) in your browser. For much better reading, add an Anthropic API key. It is stored only in this browser and requests go directly to Anthropic, so use it only on your own device. Usage is billed to your key.</p>
 <div class="grid"><div><label>API key</label><input id="key" type="password" autocomplete="off"></div><div><label>Model</label><input id="model"></div></div>
@@ -72,7 +70,7 @@ try{var r=JSON.parse(localStorage.getItem(KEY));if(r)S=Object.assign(S,r)}catch(
 S.sh=S.sh||{};S.sh.cmd=S.sh.cmd||[];S.sh.bld=S.sh.bld||[];
 for(var i=0;i<5;i++){var c=S.sh.cmd[i]=S.sh.cmd[i]||{};c.t=c.t||'';c.p=c.p||'';c.gear=c.gear||'';c.txt=c.txt||''}
 for(i=0;i<3;i++)S.sh.bld[i]=S.sh.bld[i]||{n:'',d:'',i:''};
-S.snaps.forEach(function(e){if(e.kp==null&&e.k)e.kp=e.k.reduce(function(s,v,j){return s+v*[1,2,4,10,20][j]},0)});
+S.snaps.forEach(function(e){if(e.k&&e.t1==null)for(var j=0;j<5;j++)e['t'+(j+1)]=e.k[j];if(e.kp==null&&e.t1!=null)e.kp=[1,2,3,4,5].reduce(function(a,i){return a+Math.floor((e['t'+i]||0)*[0.2,2,4,10,20][i-1])},0)});
 var $=function(id){return document.getElementById(id)};
 var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
 var fmt=function(n){return Number(n).toLocaleString('en-US')};
@@ -88,24 +86,23 @@ document.querySelector('.tab').classList.remove('ghost');
 function shrink(f,max,q,cb){var fr=new FileReader();fr.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');
   c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',q))};im.src=fr.result};fr.readAsDataURL(f)}
 function shrinkP(f,m,q){return new Promise(function(res){shrink(f,m,q,res)})}
+function scaleP(f,target){return new Promise(function(res){var fr=new FileReader();fr.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(3,target/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);var x=c.getContext('2d');x.filter='grayscale(1) contrast(1.3)';x.imageSmoothingQuality='high';x.drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/png'))};im.src=fr.result};fr.readAsDataURL(f)})}
 async function ocr(file){var url=await shrinkP(file,1800,.92);
   if(S.key){var r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':S.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
     body:JSON.stringify({model:S.model||'claude-sonnet-5-5',max_tokens:1500,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:url.split(',')[1]}},
-    {type:'text',text:'Read all visible text carefully. Transcribe every statistic label and its number, keeping each label with its value on the same line where possible. Preserve tier kill labels exactly, including variants such as T1, T 1, Tier 1, T1 Units Killed, Tier 1 Kills, and the equivalent T2–T5 labels. Preserve commas in numbers. Do not omit small stat rows. Output only the transcription.'}]}]})});
+    {type:'text',text:'Transcribe all visible text exactly, one line per text row, in reading order, keeping each label and its numbers on the same line. If the image shows a Kill Statistics table with Roman numeral tier icons I to V, output one line per row as Tier N | kills | kill points, followed by the Total line. Keep commas in numbers and do not skip small rows or section headings. Output only the text.'}]}]})});
     var j=await r.json();if(!r.ok)throw new Error(j.error&&j.error.message||'API error');return j.content.map(function(c){return c.text||''}).join('\n')}
-  return (await Tesseract.recognize(url,'eng')).data.text}
-var PF=[['power',/power\D{0,10}(\d[\d, ]{4,})/i],['kp',/kill\s*points?\D{0,12}(\d[\d, ]{4,})/i],['dead',/\bdead\D{0,10}(\d[\d, ]{3,})/i],['acc',/acclaim\D{0,10}(\d[\d, ]{3,})/i],
-  ['killed',/most\s*killed\D{0,10}(\d[\d, ]{3,})/i],['healed',/most\s*healed\D{0,10}(\d[\d, ]{3,})/i],['lost',/most\s*lost\D{0,10}(\d[\d, ]{3,})/i]];
-function cleanStatNumber(v){var d=String(v||'').replace(/[^0-9]/g,'');return d||''}
+  return (await Tesseract.recognize(await scaleP(file,2200),'eng')).data.text}
+var PF=[['power',/power\D{0,10}(\d[\d,. ]{4,})/i],['kp',/kill\s*points?\D{0,12}(\d[\d,. ]{4,})/i],['dead',/\bdead\D{0,10}(\d[\d,. ]{3,})/i],['acc',/acclaim\D{0,10}(\d[\d,. ]{3,})/i],
+  ['killed',/most\s*killed\D{0,10}(\d[\d,. ]{3,})/i],['healed',/most\s*healed\D{0,10}(\d[\d,. ]{3,})/i],['lost',/most\s*lost\D{0,10}(\d[\d,. ]{3,})/i]];
+function cleanStatNumber(v){return String(v||'').replace(/[^0-9]/g,'')}
 function tierStat(lines,n){
-  var tier='(?:tier\\s*'+n+'|t\\s*'+n+')';
-  var kill='(?:kills?|killed|units?\\s*killed|troops?\\s*killed)';
-  var roman=['I','II','III','IV','V'][n-1];
+  var tier='(?:tier\\s*'+n+'|t\\s*'+n+')',kill='(?:kills?|killed|units?\\s*killed|troops?\\s*killed)',roman=['I','II','III','IV','V'][n-1];
   var patterns=[
     new RegExp(tier+'\\s*(?:units?\\s*|troops?\\s*)?'+kill+'\\s*[:：-]?\\s*([0-9][0-9,]*)','i'),
     new RegExp('(?:units?|troops?)\\s*(?:killed|kills?)\\s*'+tier+'\\s*[:：-]?\\s*([0-9][0-9,]*)','i'),
     new RegExp(tier+'\\s*[:：-]\\s*([0-9][0-9,]*)','i'),
-    new RegExp('^\\s*[([{]?\\s*'+roman+'\\s*[)\\].:-]?\\s*([0-9][0-9,]*)','i')
+    new RegExp('^\\s*[([{]?\\s*'+roman+'\\s*[)\\].:-]?\\s*([0-9][0-9,]*)')
   ];
   for(var i=0;i<lines.length;i++){
     var line=lines[i].replace(/\s+/g,' ').trim();
@@ -124,29 +121,52 @@ function parseProfile(t){
 }
 /* tracker */
 var pending={};
+/*PARSE*/
+var WT=[0.2,2,4,10,20];
+function analyze(t){var o=parseProfile(t),hit=0,n=(t.match(/\d{1,3}(?:[,.]\d{3})+|\d+/g)||[]).map(function(x){return +x.replace(/[,.]/g,'')});
+  for(var i=0;i<5;i++){var f=!!o['t'+(i+1)];for(var x=0;x<n.length&&!f;x++){if(n[x]<10)continue;for(var y=0;y<n.length;y++){if(y!==x&&Math.abs(n[y]-WT[i]*n[x])<=1.5){o['t'+(i+1)]=String(n[x]);hit++;f=true;break}}}}
+  var I=[1,2,3,4,5],tm=/total\D{0,5}(\d{1,3}(?:[,.]\d{3})+|\d+)/i.exec(t),total=tm?+tm[1].replace(/[,.]/g,''):0,
+    all=I.every(function(i){return o['t'+i]}),calc=I.reduce(function(s,i){return s+(o['t'+i]?Math.floor(WT[i-1]*o['t'+i]):0)},0);
+  if(o.kp&&I.some(function(i){return o['t'+i]===o.kp}))delete o.kp;
+  if(total)o.kp=String(total);else if(all&&hit===5)o.kp=String(calc);
+  var nm=/governor[^\n]*\n\s*([^\n]{2,24})/i.exec(t);if(nm)o.name=nm[1].trim();var tg=/\[([A-Za-z0-9]{1,6})\]/.exec(t);if(tg)o.tag=tg[1];
+  return{o:o,hit:hit,all:all,total:total,calc:calc}}
+/*ENDPARSE*/
+function sg(n){return (n>=0?'+':'')+fmt(n)}
+var TK=['t1','t2','t3','t4','t5'];
 function trk(){var a=S.snaps.slice().sort(function(x,y){return x.ts-y.ts}),base=a[0];a.forEach(function(e){if(e.ts<=S.baseFrom)base=e});
   var last=a[a.length-1],prev=a[a.length-2];function c(t,v){return '<div><span>'+t+'</span><b>'+v+'</b></div>'}
-  $('sum').innerHTML=last?c('Current kill points',fmt(last.kp))+c('Gain since baseline','+'+fmt(last.kp-base.kp))+c('Last change','+'+fmt(prev?last.kp-prev.kp:0))+['t1','t2','t3','t4','t5'].map(function(k){return c(k.toUpperCase()+' kills',last[k]==null?'–':fmt(last[k]))}).join(''):'';
+  $('sum').innerHTML=last?c('Current kill points',fmt(last.kp))+c('Gain since baseline',sg(last.kp-base.kp))+c('Last change',sg(prev?last.kp-prev.kp:0)):'';
+  function g(e,k){return e&&e[k]!=null?e[k]:null}
+  function dl(x,y){return function(k){return g(x,k)!=null&&g(y,k)!=null?g(x,k)-g(y,k):null}}
+  function row(n,f,p){return '<tr><td>'+n+'</td>'+TK.map(function(k){var v=f(k);return '<td'+(p?' class="pos"':'')+'>'+(v==null?'–':(p?sg(v):fmt(v)))+'</td>'}).join('')+'</tr>'}
+  $('tcard').hidden=!last;
+  $('trows').innerHTML=row('Current',function(k){return g(last,k)},0)+row('Gain since baseline',dl(last,base),1)+row('Last change',dl(last,prev),1);
   $('rows').innerHTML=a.slice().reverse().map(function(e,i,r){var p=r[i+1];
-    return '<tr><td>'+new Date(e.ts).toLocaleString()+'</td><td>'+fmt(e.kp)+'</td><td class="pos">'+(p?'+'+fmt(e.kp-p.kp):'–')+'</td>'+['t1','t2','t3','t4','t5'].map(function(k){return '<td>'+(e[k]==null?'–':fmt(e[k]))+'</td>'}).join('')+'<td>'+(e.power?fmt(e.power):'–')+'</td><td>'+(e.dead?fmt(e.dead):'–')+'</td><td><button class="ghost" data-del="'+e.ts+'">×</button></td></tr>'}).join('')}
+    return '<tr><td>'+new Date(e.ts).toLocaleString()+'</td>'+TK.map(function(k){return '<td>'+(e[k]==null?'–':fmt(e[k]))+'</td>'}).join('')+'<td>'+fmt(e.kp)+'</td><td class="pos">'+(p?sg(e.kp-p.kp):'–')+'</td><td>'+(e.power?fmt(e.power):'–')+'</td><td>'+(e.dead?fmt(e.dead):'–')+'</td><td><button class="ghost" data-del="'+e.ts+'">×</button></td></tr>'}).join('')}
 async function onShot(f){msg('Reading screenshot…');
-  try{var o=parseProfile(await ocr(f));pending=o;$('kpv').value=o.kp||'';
-    ['t1','t2','t3','t4','t5'].forEach(function(k){$(k+'v').value=o[k]||''});
-    var x=['power','dead','acc','killed','healed','lost','t1','t2','t3','t4','t5'].filter(function(k){return o[k]}).map(function(k){return k+' '+fmt(o[k])});
-    $('extra').textContent=x.length?'Also detected: '+x.join(', ')+'. These are saved with the snapshot and used in the showcase.':'';
-    if(o.kp){var found=['t1','t2','t3','t4','t5'].filter(function(k){return o[k]}).map(function(k){return k.toUpperCase()+' '+fmt(o[k])});var missing=['t1','t2','t3','t4','t5'].filter(function(k){return !o[k]}).map(function(k){return k.toUpperCase()});msg('Found KP '+fmt(o.kp)+(found.length?'; '+found.join(', '):'')+'. '+(missing.length?'Still missing '+missing.join(', ')+'. Check the screenshot or enter those counts manually. ':'All tier counts detected. ')+'Check values, then Save snapshot.');}else msg('No kill points found. Try a clearer screenshot, enable the API key option, or type the number.',1)}
+  try{var a=analyze(await ocr(f)),o=a.o;pending=o;$('kpv').value=o.kp||'';TK.forEach(function(k){$(k+'v').value=o[k]||''});
+    var x=['power','dead','acc','killed','healed','lost'].filter(function(k){return o[k]}).map(function(k){return k+' '+fmt(o[k])});
+    $('extra').textContent=(x.length?'Also detected: '+x.join(', ')+'. ':'')+(o.name?'Name: '+o.name+'. ':'')+(o.tag?'Tag: ['+o.tag+']. ':'')+(x.length||o.name?'These fill empty showcase fields when you save.':'');
+    var got=TK.filter(function(k){return o[k]}).length;
+    if(a.all&&(!a.total||Math.abs(a.calc-a.total)<=5))msg('Read all 5 tiers'+(o.kp?' and kill points '+fmt(o.kp):'')+(a.total?'. The numbers add up':'')+'. Check them, then press Save snapshot.');
+    else if(a.all)msg('Read all 5 tiers, but they do not add up to the total ('+fmt(a.total)+'). Check the numbers before saving.',1);
+    else msg('Read '+got+' of 5 tier rows'+(o.kp?' and kill points '+fmt(o.kp):'')+'. Fill in the empty ones by hand, or try a sharper screenshot (the popup, zoomed in) or the API key option.',1)}
   catch(x){msg('Could not read the screenshot: '+x.message,1)}}
 $('shot').onchange=function(e){if(e.target.files[0])onShot(e.target.files[0])};
 document.addEventListener('paste',function(e){var f=[].slice.call(e.clipboardData.files||[]).filter(function(x){return x.type.indexOf('image')===0})[0];if(f&&!$('tr').hidden)onShot(f)});
-$('add').onclick=function(){var v=parseInt(String($('kpv').value).replace(/\D/g,''),10);if(isNaN(v))return msg('Enter or detect kill points first.',1);
-  var e={ts:Date.now(),kp:v};['t1','t2','t3','t4','t5','power','dead'].forEach(function(k){var raw=k.charAt(0)==='t'?$(k+'v').value:pending[k];if(raw!==''&&raw!=null)e[k]=+String(raw).replace(/\D/g,'')});S.snaps.push(e);
-  ['power','dead','acc','killed','healed','lost'].forEach(function(k){if(pending[k])S.sh[k]=pending[k]});S.sh.kp=String(v);
-  pending={};['kpv','t1v','t2v','t3v','t4v','t5v'].forEach(function(id){$(id).value=''});$('shot').value='';$('extra').textContent='';save();trk();build();draw();msg('Snapshot saved.')};
+$('add').onclick=function(){var T=TK.map(function(k){return cleanStatNumber($(k+'v').value)}),n=T.filter(Boolean).length;
+  var kv=cleanStatNumber($('kpv').value),v=kv?+kv:(n===5?T.reduce(function(s,x,i){return s+Math.floor(WT[i]*x)},0):NaN);
+  if(isNaN(v))return msg('Enter kill points (or all five tier kills) first.',1);
+  var e={ts:Date.now(),kp:v};T.forEach(function(x,i){if(x)e[TK[i]]=+x});['power','dead'].forEach(function(k){if(pending[k])e[k]=+pending[k]});S.snaps.push(e);
+  ['power','dead','acc','killed','healed','lost'].forEach(function(k){if(pending[k])S.sh[k]=pending[k]});
+  if(!S.sh.name&&pending.name)S.sh.name=pending.name;if(!S.sh.tag&&pending.tag)S.sh.tag=pending.tag;S.sh.kp=String(v);
+  pending={};['kpv'].concat(TK.map(function(k){return k+'v'})).forEach(function(i){$(i).value=''});$('shot').value='';$('extra').textContent='';save();trk();build();draw();msg('Snapshot saved.')};
 $('rows').onclick=function(e){var d=e.target.dataset.del;if(d){S.snaps=S.snaps.filter(function(s){return String(s.ts)!==d});save();trk()}};
 $('base').onclick=function(){S.baseFrom=Date.now();save();trk();msg('Baseline set to now.')};
 $('clear').onclick=function(){if(confirm('Delete all tracker history?')){S.snaps=[];S.baseFrom=0;save();trk()}};
-$('csv').onclick=function(){var l=['time,kill_points,t1_kills,t2_kills,t3_kills,t4_kills,t5_kills,power,dead'];S.snaps.forEach(function(e){l.push([new Date(e.ts).toISOString(),e.kp,e.t1==null?'':e.t1,e.t2==null?'':e.t2,e.t3==null?'':e.t3,e.t4==null?'':e.t4,e.t5==null?'':e.t5,e.power||'',e.dead||''].join(','))});
-  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([l.join('\n')],{type:'text/csv'}));a.download='kp-history.csv';a.click()};
+$('csv').onclick=function(){var l=['time,kill_points,t1_kills,t2_kills,t3_kills,t4_kills,t5_kills,power,dead'];S.snaps.forEach(function(e){l.push([new Date(e.ts).toISOString(),e.kp].concat(TK.map(function(k){return e[k]==null?'':e[k]}),[e.power||'',e.dead||'']).join(','))});
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([l.join('\n')],{type:'text/csv'}));a.download='kill-history.csv';a.click()};
 $('key').value=S.key||'';$('model').value=S.model||'';
 $('savekey').onclick=function(){S.key=$('key').value.trim();S.model=$('model').value.trim()||'claude-sonnet-5-5';save();msg(S.key?'API reading enabled.':'Using free OCR.')};
 /* showcase */
@@ -177,7 +197,7 @@ $('ed').addEventListener('change',async function(e){var t=e.target,d=t.dataset,s
   t.value=''});
 $('ed').addEventListener('click',function(e){var i=e.target.dataset.cc;if(i!=null){S.sh.cmd[i].txt='';build();draw();save()}});
 $('pshot').onchange=async function(e){var f=e.target.files[0];if(!f)return;msg('Reading profile screenshot…');
-  try{var o=parseProfile(await ocr(f)),n=Object.keys(o);n.forEach(function(k){S.sh[k]=o[k]});build();draw();save();
+  try{var o=analyze(await ocr(f)).o,n=Object.keys(o).filter(function(k){return !/^t\d$/.test(k)});n.forEach(function(k){S.sh[k]=o[k]});build();draw();save();
     msg(n.length?'Filled: '+n.join(', ')+'. Please check the numbers.':'Nothing found. Try a clearer screenshot.',!n.length)}catch(x){msg('Could not read: '+x.message,1)}};
 $('fromtr').onclick=function(){var a=S.snaps.slice().sort(function(x,y){return x.ts-y.ts}),l=a[a.length-1];if(!l)return;S.sh.kp=String(l.kp);build();draw();save()};
 var HD=['FORMATION','SCROLL','INSTRUMENT','FLAG','EMBLEM'],TY=['Cavalry','Infantry','Archer','Siege','All'];
