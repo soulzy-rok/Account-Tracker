@@ -1,26 +1,69 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
 <title>RoK Personal Tracker</title>
 <style>
-:root{--bg:#f6f4ef;--fg:#1d1b16;--card:#fff;--mut:#6b675c;--ac:#8a5a00;--bd:#ddd8c8;--pos:#1f7a3d;color-scheme:light}
-@media (prefers-color-scheme:dark){:root{--bg:#16150f;--fg:#efece2;--card:#201f17;--mut:#a29d8c;--ac:#e8b44f;--bd:#37352a;--pos:#5fd08a;color-scheme:dark}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,sans-serif;padding:16px}
-main{max-width:1000px;margin:0 auto}h1{font-size:22px;margin:0 0 10px}h2{font-size:16px;margin:0 0 10px}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
-label{display:block;font-size:12px;color:var(--mut);margin-bottom:2px}
-input,textarea{width:100%;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--fg);font:inherit}
-textarea{min-height:110px;font-size:13px}
-button{padding:8px 14px;border-radius:8px;border:1px solid var(--ac);background:var(--ac);color:var(--bg);font:inherit;font-weight:600;cursor:pointer}
-button.ghost{background:transparent;color:var(--ac)}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:end}
-[hidden]{display:none!important}.tabs{display:flex;gap:8px;margin-bottom:14px}
-.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:14px}
-.sum div{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px}.sum b{display:block;font-size:20px}.sum span{font-size:12px;color:var(--mut)}
-.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:900px}th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--bd);white-space:nowrap}
-th:first-child,td:first-child{text-align:left}th{font-size:12px;color:var(--mut)}td.pos{color:var(--pos);font-weight:600}
-.note{font-size:12px;color:var(--mut);margin-top:8px}.cmd{border:1px solid var(--bd);border-radius:10px;padding:10px;margin-top:10px}
-#msg{min-height:20px;font-size:14px;margin-bottom:10px}.pv{overflow:auto;border:1px solid var(--bd);border-radius:12px}
+:root{--night:#0e1829;--deep:#15233b;--line:#2b4162;--banner:#1d3a64;--parch:#eadfbe;--parch2:#dccfa4;--ink:#33260f;--brass:#d1a03f;--hi:#f0cf7a;--tx:#e8ecf4;--mut:#9db0cf;--pos:#7fdc9d;--posink:#1f6b3a;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1100px 480px at 50% -140px,#1d3763 0,transparent 70%),var(--night);color:var(--tx);font:16px/1.5 'Source Sans 3',system-ui,sans-serif;padding:20px 16px 70px;min-height:100vh}
+main{max-width:1040px;margin:0 auto}
+h1,h2{font-family:Marcellus,Georgia,serif;font-weight:400}h1{font-size:28px;margin:0;letter-spacing:.02em}h2{font-size:20px;margin:0 0 12px;color:var(--hi)}
+.top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px}
+.brand{display:flex;gap:12px;align-items:center}.brand p{margin:0;color:var(--mut);font-size:14px}
+.crest,.coin{display:grid;place-items:center;border-radius:50%;color:#3a2406;font-family:Marcellus,Georgia,serif;background:radial-gradient(circle at 35% 30%,var(--hi),#b07a22 62%,#6e4710);border:2px solid #4a300a;box-shadow:inset 0 0 0 2px rgba(255,235,170,.35)}
+.crest{width:46px;height:46px;font-size:22px}.coin{width:44px;height:44px;font-size:16px}
+.tabs{display:flex;gap:4px;background:var(--deep);border:1px solid var(--line);border-radius:999px;padding:4px}
+.tab{border:0;border-radius:999px;padding:8px 22px;font:600 15px 'Source Sans 3',sans-serif;background:var(--brass);color:#2a1b05;cursor:pointer;transition:background .2s,color .2s}
+.tab.ghost{background:transparent;color:var(--mut)}.tab.ghost:hover{color:var(--tx);background:transparent}
+.hero{border:2px solid var(--brass);border-radius:20px;padding:22px;margin-bottom:16px;background:linear-gradient(160deg,var(--banner),#11213a 70%);box-shadow:inset 0 0 0 4px var(--night),inset 0 0 0 5px #7b5c20}
+.figs{display:flex;gap:18px 44px;flex-wrap:wrap;align-items:flex-end;margin-bottom:22px}
+.fig span{display:block;color:var(--mut);font-size:14px}.fig b{font:400 26px Marcellus,Georgia,serif;font-variant-numeric:tabular-nums}
+.fig:first-child b{font-size:clamp(34px,7vw,56px);color:var(--hi)}.fig b.up{color:var(--pos)}.empty{margin:0 0 4px;color:var(--mut)}
+.coins{display:grid;gap:12px}.tb{display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:center}
+.tl{display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums;flex-wrap:wrap}.tl small{color:var(--mut);font-size:14px}
+.trk{height:10px;background:#0b1424;border-radius:5px;overflow:hidden;margin-top:5px}
+.trk i{display:block;height:100%;width:0;border-radius:5px;transition:width .9s cubic-bezier(.2,.7,.2,1)}
+.r1{background:#8a6a2a}.r2{background:#a98030}.r3{background:#c8922e}.r4{background:#e2ac40}.r5{background:#f4cb6a}
+.gain{min-width:100px;text-align:right;font-variant-numeric:tabular-nums;color:var(--pos);font-weight:600}.gain.na{color:var(--mut);font-weight:400;font-size:14px}
+.card{background:linear-gradient(180deg,var(--deep),#12203a);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+label{display:block;font-size:14px;color:var(--mut);margin-bottom:3px}
+input,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#0c1626;color:var(--tx);font:inherit}
+textarea{min-height:110px;font-size:14px}
+input:focus-visible,textarea:focus-visible,button:focus-visible,summary:focus-visible,.drop:focus-within{outline:2px solid var(--hi);outline-offset:2px}
+button{padding:9px 16px;border-radius:8px;border:1px solid var(--brass);background:var(--brass);color:#2a1b05;font:600 15px 'Source Sans 3',sans-serif;cursor:pointer;transition:transform .1s,background .2s}
+button:hover{background:var(--hi)}button:active{transform:scale(.97)}
+button.ghost{background:transparent;color:var(--hi)}button.ghost:hover{background:rgba(209,160,63,.16)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:end}[hidden]{display:none!important}
+.note{font-size:14px;color:var(--mut);margin-top:8px}summary{cursor:pointer;color:var(--hi);font-weight:600}
+.drop{position:relative;display:flex;align-items:center;gap:16px;padding:20px;margin-bottom:14px;border:2px dashed #6e5a2e;border-radius:12px;background:rgba(209,160,63,.06);cursor:pointer;overflow:hidden;transition:border-color .2s,background .2s}
+.drop:hover,.drop.over{border-color:var(--brass);background:rgba(209,160,63,.15)}.drop .ico{font-size:30px}
+.drop b{display:block;font-weight:600;color:var(--tx)}.drop small{color:var(--mut);font-size:14px}
+.drop img{margin-left:auto;height:74px;border-radius:8px;border:1px solid var(--line)}
+.drop.busy{border-style:solid;border-color:var(--brass)}.drop.busy::after{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,transparent,var(--hi),transparent);animation:scan 1.3s linear infinite}
+@keyframes scan{to{top:100%}}
+.ledger{background:var(--parch);color:var(--ink);border-radius:8px;border:1px solid #bfae7c}.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:840px;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:8px 8px;font-size:15px;border-bottom:1px solid rgba(51,38,15,.15);white-space:nowrap}
+th{font-weight:600;color:#6b4d14;border-bottom:2px double #a48a4a}th:first-child,td:first-child{text-align:left}
+tbody tr:hover{background:var(--parch2)}td.pos{color:var(--posink);font-weight:600}
+.ledger button.ghost{color:#7a3b2a;border-color:transparent;padding:2px 9px}.ledger button.ghost:hover{background:rgba(122,59,42,.14)}
+#chart{position:relative}#chart svg{width:100%;height:auto;display:block}
+#chart circle{fill:var(--parch);stroke:var(--brass);stroke-width:2.5;cursor:pointer;transition:r .15s}#chart circle:hover{r:7.5}
+#tip{position:absolute;transform:translate(-50%,-130%);background:var(--parch);color:var(--ink);padding:6px 10px;border-radius:8px;font-size:14px;pointer-events:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.4)}
+#tip span{color:var(--posink);font-weight:600}
+#toasts{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:grid;gap:8px;z-index:9;width:min(560px,calc(100% - 24px))}
+.toast{background:var(--parch);color:var(--ink);border-left:5px solid var(--posink);border-radius:8px;padding:10px 14px;box-shadow:0 6px 24px rgba(0,0,0,.5);animation:up .25s ease-out;transition:opacity .3s}
+.toast.err{border-left-color:#a8342a}.toast.out{opacity:0}@keyframes up{from{transform:translateY(12px);opacity:0}}
+input[type=file]{padding:6px}input[type=file]::file-selector-button{margin-right:10px;border:1px solid var(--brass);background:transparent;color:var(--hi);border-radius:6px;padding:5px 10px;font:600 14px 'Source Sans 3',sans-serif;cursor:pointer}input[type=file]::file-selector-button:hover{background:rgba(209,160,63,.16)}
+.pv{overflow:hidden;border:1px solid var(--line);border-radius:12px;background:#0b1424;margin-bottom:16px}
+.cmd{border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px;background:rgba(255,255,255,.02)}
+details.cmd{padding:0}details.cmd>summary{padding:11px 14px;font:400 17px Marcellus,Georgia,serif;color:var(--hi)}
+details.cmd[open]>summary{border-bottom:1px solid var(--line);margin-bottom:12px}details.cmd>:not(summary){margin-left:14px;margin-right:14px}details.cmd>:last-child{margin-bottom:14px}
+@media (max-width:560px){.tb{grid-template-columns:40px 1fr}.gain{grid-column:2;text-align:left}.coin{width:40px;height:40px}.drop img{display:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 #card{width:1500px;padding:28px;color:#fff;background:#1a0e08 center/cover;display:flex;flex-wrap:wrap;gap:22px;font-family:system-ui,sans-serif}
 #card .pf{width:280px;background:rgba(20,12,8,.72);border-radius:18px;padding:20px;text-align:center}
 #card .av{width:130px;height:130px;border-radius:50%;object-fit:cover;background:#3a2a40;display:block;margin:0 auto 10px}
@@ -34,19 +77,20 @@ th:first-child,td:first-child{text-align:left}th{font-size:12px;color:var(--mut)
 #card .bl{width:100%;display:flex;gap:14px}#card .b{width:240px;background:rgba(20,12,8,.72);border-radius:14px;padding:10px;text-align:center}
 #card .b img{width:100%;height:140px;object-fit:contain}#card .b b{display:block;font-size:18px}#card .b span{font-size:12px;opacity:.85}
 </style></head><body><main>
-<h1>RoK Personal Tracker</h1>
-<div class="tabs"><button class="tab" data-t="tr">Tracker</button><button class="tab ghost" data-t="sh">Showcase</button></div>
-<div id="msg"></div>
+<header class="top"><div class="brand"><span class="crest">⚔</span><div><h1>RoK Personal Tracker</h1><p>Your kills, tier by tier, and a card to show them off</p></div></div>
+<nav class="tabs"><button class="tab" data-t="tr">Tracker</button><button class="tab ghost" data-t="sh">Showcase</button></nav></header>
+<div id="toasts" aria-live="polite"></div>
 
 <section id="tr">
-<div class="sum" id="sum"></div>
-<div class="card"><h2>Update from a screenshot</h2>
-<label>Screenshot of the Kill Statistics popup (open it by tapping the “i” next to Kill Points), or press Ctrl+V to paste one</label><input id="shot" type="file" accept="image/*">
+<div class="hero"><div class="figs" id="sum"></div><div class="coins" id="tbars"></div></div>
+<div class="card"><h2>Record a snapshot</h2>
+<label class="drop" id="drop" for="shot"><span class="ico">📜</span><span><b id="dzt">Drop a Kill Statistics screenshot here</b><small>Or click to choose a file, or paste with Ctrl+V. Open the popup by tapping the “i” next to Kill Points.</small></span><img id="thumb" alt="Last screenshot" hidden></label><input id="shot" type="file" accept="image/*" hidden>
 <div class="grid" style="margin-top:10px"><div><label>Kill points</label><input id="kpv" inputmode="numeric"></div><div><label>T1 kills</label><input id="t1v" inputmode="numeric"></div><div><label>T2 kills</label><input id="t2v" inputmode="numeric"></div><div><label>T3 kills</label><input id="t3v" inputmode="numeric"></div><div><label>T4 kills</label><input id="t4v" inputmode="numeric"></div><div><label>T5 kills</label><input id="t5v" inputmode="numeric"></div></div>
 <div class="row"><button id="add">Save snapshot</button><button class="ghost" id="base">Set baseline to now</button><button class="ghost" id="csv">Export CSV</button><button class="ghost" id="clear">Clear</button></div>
 <p class="note" id="extra"></p></div>
-<div class="card" id="tcard" hidden><h2>Kills by tier</h2><div class="scroll"><table><thead><tr><th></th><th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th></tr></thead><tbody id="trows"></tbody></table></div></div>
-<div class="card"><h2>History</h2><div class="scroll"><table><thead><tr><th>Time</th><th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>Kill points</th><th>Change</th><th>Power</th><th>Dead</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></div>
+<div class="card" id="tcard" hidden><h2>Tier ledger</h2><div class="ledger scroll"><table style="min-width:520px"><thead><tr><th></th><th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th></tr></thead><tbody id="trows"></tbody></table></div></div>
+<div class="card"><h2>Kill points over time</h2><div id="chart"></div></div>
+<div class="card"><h2>Snapshots</h2><div class="ledger scroll"><table><thead><tr><th>Time</th><th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>Kill points</th><th>Change</th><th>Power</th><th>Dead</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></div>
 <details class="card"><summary>Reading accuracy (optional)</summary>
 <p class="note">Default: free OCR (Tesseract.js) in your browser. For much better reading, add an Anthropic API key. It is stored only in this browser and requests go directly to Anthropic, so use it only on your own device. Usage is billed to your key.</p>
 <div class="grid"><div><label>API key</label><input id="key" type="password" autocomplete="off"></div><div><label>Model</label><input id="model"></div></div>
@@ -54,12 +98,13 @@ th:first-child,td:first-child{text-align:left}th{font-size:12px;color:var(--mut)
 </section>
 
 <section id="sh" hidden>
-<div class="card"><h2>Build your showcase</h2>
+<div class="row" style="margin:0 0 12px"><button id="png">Download PNG</button><button class="ghost" id="fromtr">Use latest tracker kill points</button></div>
+<div class="pv" id="pv"><div id="card"></div></div>
+<div class="card"><h2>Edit your showcase</h2>
 <label>Profile screenshot (fills name-panel stats: power, kill points, dead, acclaim, killed, healed, lost)</label><input id="pshot" type="file" accept="image/*">
 <div id="ed"></div>
-<div class="row"><button id="png">Download PNG</button><button class="ghost" id="fromtr">Use latest tracker kill points</button></div>
 <p class="note">Per commander: add a gear/set image, then upload stat screenshots (scroll, instrument, flag, emblem, gear). Their text is read, shown by section, and the percentages are added up into total stats. Always check the text box for misreads. Don’t paste an existing total block, or it will be counted twice.</p></div>
-<div class="pv"><div id="card"></div></div>
+
 </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
@@ -75,12 +120,12 @@ var $=function(id){return document.getElementById(id)};
 var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
 var fmt=function(n){return Number(n).toLocaleString('en-US')};
 var fv=function(v){var n=String(v||'').replace(/\D/g,'');return n?fmt(n):esc(v)};
-function msg(t,e){var m=$('msg');m.textContent=t;m.style.color=e?'#c0392b':'var(--pos)'}
+function msg(t,e){var w=$('toasts'),d=document.createElement('div');d.className='toast'+(e?' err':'');d.textContent=t;w.appendChild(d);while(w.children.length>3)w.firstChild.remove();setTimeout(function(){d.classList.add('out');setTimeout(function(){d.remove()},300)},e?8000:4500)}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){msg('Storage full: remove some images.',1)}}
 /* tabs */
 document.querySelectorAll('.tab').forEach(function(b){b.onclick=function(){
   document.querySelectorAll('.tab').forEach(function(x){x.classList.toggle('ghost',x!==b)});
-  $('tr').hidden=b.dataset.t!=='tr';$('sh').hidden=b.dataset.t!=='sh'};});
+  $('tr').hidden=b.dataset.t!=='tr';$('sh').hidden=b.dataset.t!=='sh';fit()};});
 document.querySelector('.tab').classList.remove('ghost');
 /* image + reading */
 function shrink(f,max,q,cb){var fr=new FileReader();fr.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');
@@ -134,17 +179,31 @@ function analyze(t){var o=parseProfile(t),hit=0,n=(t.match(/\d{1,3}(?:[,.]\d{3})
 /*ENDPARSE*/
 function sg(n){return (n>=0?'+':'')+fmt(n)}
 var TK=['t1','t2','t3','t4','t5'];
+function count(){if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;document.querySelectorAll('[data-n]').forEach(function(el){var to=+el.dataset.n,sgn=el.dataset.s,t0=performance.now();(function f(t){var p=Math.min(1,(t-t0)/700),v=Math.round(to*(1-Math.pow(1-p,3)));el.textContent=sgn?sg(v):fmt(v);if(p<1)requestAnimationFrame(f)})(t0)})}
+function fit(){var p=$('pv'),c=$('card');if(!p||!p.clientWidth)return;var k=Math.min(1,p.clientWidth/1500);c.style.transformOrigin='0 0';c.style.transform=k<1?'scale('+k+')':'none';p.style.height=Math.ceil(c.offsetHeight*k)+'px'}
+function chart(a){var el=$('chart');if(a.length<2){el.innerHTML='<p class="note">Save at least two snapshots to see how your kill points grow.</p>';return}
+  var W=640,H=170,P=26,PL=84,v=a.map(function(e){return e.kp}),mn=Math.min.apply(null,v),sp=(Math.max.apply(null,v)-mn)||1,
+    X=function(i){return PL+i*(W-PL-P)/(a.length-1)},Y=function(q){return H-P-(q-mn)/sp*(H-2*P)},
+    d='M'+a.map(function(e,i){return X(i).toFixed(1)+','+Y(e.kp).toFixed(1)}).join(' L');
+  el.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Kill points over time"><defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d1a03f" stop-opacity=".4"/><stop offset="1" stop-color="#d1a03f" stop-opacity="0"/></linearGradient></defs><path d="'+d+' L'+X(a.length-1)+','+(H-P)+' L'+X(0)+','+(H-P)+' Z" fill="url(#cg)"/><path d="'+d+'" fill="none" stroke="#d1a03f" stroke-width="2.5" stroke-linejoin="round"/>'+
+    a.map(function(e,i){return '<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(e.kp).toFixed(1)+'" r="5.5" data-i="'+i+'"/>'}).join('')+'<g fill="#9db0cf" font-size="11"><text x="0" y="'+(Y(mn+sp)+4)+'">'+fmt(mn+sp)+'</text><text x="0" y="'+(Y(mn)+4)+'">'+fmt(mn)+'</text><text x="'+PL+'" y="'+(H-4)+'">'+new Date(a[0].ts).toLocaleDateString()+'</text><text x="'+(W-P)+'" y="'+(H-4)+'" text-anchor="end">'+new Date(a[a.length-1].ts).toLocaleDateString()+'</text></g></svg><div id="tip" hidden></div>';
+  var tip=$('tip');el.querySelectorAll('circle').forEach(function(c){function show(){var i=+c.dataset.i,e=a[i],p=a[i-1];tip.hidden=false;tip.innerHTML='<b>'+fmt(e.kp)+'</b> kill points'+(p?'<br><span>'+sg(e.kp-p.kp)+'</span> since the snapshot before':'')+'<br>'+new Date(e.ts).toLocaleString();
+    tip.style.left=(c.cx.baseVal.value/W*100)+'%';tip.style.top=(c.cy.baseVal.value/H*100)+'%'}c.onmouseenter=show;c.onclick=show;c.onmouseleave=function(){tip.hidden=true}})}
 function trk(){var a=S.snaps.slice().sort(function(x,y){return x.ts-y.ts}),base=a[0];a.forEach(function(e){if(e.ts<=S.baseFrom)base=e});
-  var last=a[a.length-1],prev=a[a.length-2];function c(t,v){return '<div><span>'+t+'</span><b>'+v+'</b></div>'}
-  $('sum').innerHTML=last?c('Current kill points',fmt(last.kp))+c('Gain since baseline',sg(last.kp-base.kp))+c('Last change',sg(prev?last.kp-prev.kp:0)):'';
+  var last=a[a.length-1],prev=a[a.length-2];function c(t,n,sgn){return '<div class="fig"><span>'+t+'</span><b'+(sgn&&n>=0?' class="up"':'')+' data-n="'+n+'"'+(sgn?' data-s="1"':'')+'>'+(sgn?sg(n):fmt(n))+'</b></div>'}
+  $('sum').innerHTML=last?c('Current kill points',last.kp,0)+c('Gain since baseline',last.kp-base.kp,1)+c('Last change',prev?last.kp-prev.kp:0,1):'<p class="empty">No snapshots yet. Drop a screenshot of your Kill Statistics below to record the first one.</p>';
   function g(e,k){return e&&e[k]!=null?e[k]:null}
   function dl(x,y){return function(k){return g(x,k)!=null&&g(y,k)!=null?g(x,k)-g(y,k):null}}
   function row(n,f,p){return '<tr><td>'+n+'</td>'+TK.map(function(k){var v=f(k);return '<td'+(p?' class="pos"':'')+'>'+(v==null?'–':(p?sg(v):fmt(v)))+'</td>'}).join('')+'</tr>'}
   $('tcard').hidden=!last;
+  var cp=TK.map(function(k,i){return last&&last[k]!=null?Math.floor(WT[i]*last[k]):0}),cs=cp.reduce(function(x,y){return x+y},0)||1,gl=dl(last,base);
+  $('tbars').innerHTML=last&&TK.some(function(k){return last[k]!=null})?TK.map(function(k,i){var gv=gl(k);return '<div class="tb"><span class="coin">'+['I','II','III','IV','V'][i]+'</span><div><div class="tl"><span><b>'+(last[k]==null?'–':fmt(last[k]))+'</b> <small>T'+(i+1)+' kills</small></span><small>'+fmt(cp[i])+' kill points ('+(cp[i]/cs*100).toFixed(1)+'%)</small></div><div class="trk"><i class="r'+(i+1)+'" data-w="'+(cp[i]/cs*100).toFixed(1)+'"></i></div></div><span class="gain'+(gv==null?' na':'')+'">'+(gv==null?'no baseline':sg(gv))+'</span></div>'}).join(''):'';
+  requestAnimationFrame(function(){requestAnimationFrame(function(){document.querySelectorAll('#tbars i').forEach(function(e){e.style.width=e.dataset.w+'%'})})});
+  chart(a);count();
   $('trows').innerHTML=row('Current',function(k){return g(last,k)},0)+row('Gain since baseline',dl(last,base),1)+row('Last change',dl(last,prev),1);
   $('rows').innerHTML=a.slice().reverse().map(function(e,i,r){var p=r[i+1];
-    return '<tr><td>'+new Date(e.ts).toLocaleString()+'</td>'+TK.map(function(k){return '<td>'+(e[k]==null?'–':fmt(e[k]))+'</td>'}).join('')+'<td>'+fmt(e.kp)+'</td><td class="pos">'+(p?sg(e.kp-p.kp):'–')+'</td><td>'+(e.power?fmt(e.power):'–')+'</td><td>'+(e.dead?fmt(e.dead):'–')+'</td><td><button class="ghost" data-del="'+e.ts+'">×</button></td></tr>'}).join('')}
-async function onShot(f){msg('Reading screenshot…');
+    return '<tr><td>'+new Date(e.ts).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'})+'</td>'+TK.map(function(k){return '<td>'+(e[k]==null?'–':fmt(e[k]))+'</td>'}).join('')+'<td>'+fmt(e.kp)+'</td><td class="pos">'+(p?sg(e.kp-p.kp):'–')+'</td><td>'+(e.power?fmt(e.power):'–')+'</td><td>'+(e.dead?fmt(e.dead):'–')+'</td><td><button class="ghost" data-del="'+e.ts+'">×</button></td></tr>'}).join('')}
+async function onShot(f){var th=$('thumb'),dt=$('dzt'),old=dt.textContent;th.src=URL.createObjectURL(f);th.hidden=false;dt.textContent='Reading screenshot…';$('drop').classList.add('busy');
   try{var a=analyze(await ocr(f)),o=a.o;pending=o;$('kpv').value=o.kp||'';TK.forEach(function(k){$(k+'v').value=o[k]||''});
     var x=['power','dead','acc','killed','healed','lost'].filter(function(k){return o[k]}).map(function(k){return k+' '+fmt(o[k])});
     $('extra').textContent=(x.length?'Also detected: '+x.join(', ')+'. ':'')+(o.name?'Name: '+o.name+'. ':'')+(o.tag?'Tag: ['+o.tag+']. ':'')+(x.length||o.name?'These fill empty showcase fields when you save.':'');
@@ -152,8 +211,10 @@ async function onShot(f){msg('Reading screenshot…');
     if(a.all&&(!a.total||Math.abs(a.calc-a.total)<=5))msg('Read all 5 tiers'+(o.kp?' and kill points '+fmt(o.kp):'')+(a.total?'. The numbers add up':'')+'. Check them, then press Save snapshot.');
     else if(a.all)msg('Read all 5 tiers, but they do not add up to the total ('+fmt(a.total)+'). Check the numbers before saving.',1);
     else msg('Read '+got+' of 5 tier rows'+(o.kp?' and kill points '+fmt(o.kp):'')+'. Fill in the empty ones by hand, or try a sharper screenshot (the popup, zoomed in) or the API key option.',1)}
-  catch(x){msg('Could not read the screenshot: '+x.message,1)}}
+  catch(x){msg('Could not read the screenshot: '+x.message,1)}finally{$('drop').classList.remove('busy');dt.textContent=old}}
 $('shot').onchange=function(e){if(e.target.files[0])onShot(e.target.files[0])};
+(function(){var dz=$('drop');['dragenter','dragover'].forEach(function(n){dz.addEventListener(n,function(e){e.preventDefault();dz.classList.add('over')})});
+  ['dragleave','drop'].forEach(function(n){dz.addEventListener(n,function(e){e.preventDefault();dz.classList.remove('over');if(n==='drop'){var f=[].slice.call(e.dataTransfer.files).filter(function(x){return x.type.indexOf('image')===0})[0];if(f)onShot(f)}})})})();
 document.addEventListener('paste',function(e){var f=[].slice.call(e.clipboardData.files||[]).filter(function(x){return x.type.indexOf('image')===0})[0];if(f&&!$('tr').hidden)onShot(f)});
 $('add').onclick=function(){var T=TK.map(function(k){return cleanStatNumber($(k+'v').value)}),n=T.filter(Boolean).length;
   var kv=cleanStatNumber($('kpv').value),v=kv?+kv:(n===5?T.reduce(function(s,x,i){return s+Math.floor(WT[i]*x)},0):NaN);
@@ -171,15 +232,15 @@ $('key').value=S.key||'';$('model').value=S.model||'';
 $('savekey').onclick=function(){S.key=$('key').value.trim();S.model=$('model').value.trim()||'claude-sonnet-5-5';save();msg(S.key?'API reading enabled.':'Using free OCR.')};
 /* showcase */
 var F=[['name','Governor name'],['tag','Alliance tag'],['power','Power'],['kp','Kill points'],['dead','Dead'],['acc','Highest acclaim'],['killed','Most killed'],['healed','Most healed'],['lost','Most lost']];
-function build(){var h='<div class="grid" style="margin-top:10px">'+F.map(function(f){return '<div><label>'+f[1]+'</label><input data-k="'+f[0]+'"></div>'}).join('')+'</div>';
+function build(){var op=[].map.call(document.querySelectorAll('#ed details.cmd'),function(d){return d.open});var h='<div class="grid" style="margin-top:10px">'+F.map(function(f){return '<div><label>'+f[1]+'</label><input data-k="'+f[0]+'"></div>'}).join('')+'</div>';
   h+='<div class="grid" style="margin-top:8px"><div><label>Avatar</label><input type="file" accept="image/*" data-up="av"></div><div><label>Background</label><input type="file" accept="image/*" data-up="bg"></div></div>';
-  for(var i=0;i<5;i++)h+='<div class="cmd"><b>Commander slot '+(i+1)+'</b><div class="grid" style="margin-top:6px"><div><label>Title (e.g. Attila + Achilles)</label><input data-ct="'+i+'"></div>'+
+  for(var i=0;i<5;i++)h+='<details class="cmd"'+(i?'':' open')+'><summary>Commander slot '+(i+1)+'</summary><div class="grid" style="margin-top:6px"><div><label>Title (e.g. Attila + Achilles)</label><input data-ct="'+i+'"></div>'+
     '<div><label>Portrait</label><input type="file" accept="image/*" data-cp="'+i+'"></div><div><label>Gear / set image</label><input type="file" accept="image/*" data-cg="'+i+'"></div>'+
     '<div><label>Read stats from screenshots</label><input type="file" accept="image/*" multiple data-co="'+i+'"></div></div>'+
-    '<label style="margin-top:6px">Detected text (editable; headings FORMATION / SCROLL / INSTRUMENT / FLAG / EMBLEM group it)</label><textarea data-cn="'+i+'"></textarea><div class="row"><button class="ghost" data-cc="'+i+'">Clear text</button></div></div>';
+    '<label style="margin-top:6px">Detected text (editable; headings FORMATION / SCROLL / INSTRUMENT / FLAG / EMBLEM group it)</label><textarea data-cn="'+i+'"></textarea><div class="row"><button class="ghost" data-cc="'+i+'">Clear text</button></div></details>';
   h+='<h2 style="margin-top:14px">Buildings (up to 3)</h2><div class="grid">';
   for(i=0;i<3;i++)h+='<div class="cmd" style="margin:0"><label>Name</label><input data-bn="'+i+'"><label>Perk text</label><input data-bd="'+i+'"><label>Image</label><input type="file" accept="image/*" data-bi="'+i+'"></div>';
-  $('ed').innerHTML=h+'</div>';
+  $('ed').innerHTML=h+'</div>';if(op.length)document.querySelectorAll('#ed details.cmd').forEach(function(d,i){d.open=!!op[i]});
   document.querySelectorAll('[data-k]').forEach(function(x){x.value=S.sh[x.dataset.k]||''});
   for(i=0;i<5;i++){document.querySelector('[data-ct="'+i+'"]').value=S.sh.cmd[i].t;document.querySelector('[data-cn="'+i+'"]').value=S.sh.cmd[i].txt}
   for(i=0;i<3;i++){document.querySelector('[data-bn="'+i+'"]').value=S.sh.bld[i].n;document.querySelector('[data-bd="'+i+'"]').value=S.sh.bld[i].d}}
@@ -220,7 +281,7 @@ function draw(){var s=S.sh,c=$('card');c.style.backgroundImage=s.bg?'url('+s.bg+
       (d.keys.length?'<div class="sc"><h4>TOTAL STATS</h4>'+d.keys.map(function(k){return esc(k)+': +'+(Math.round(d.tot[k]*10)/10)+'%'}).join('<br>')+'</div>':'')+'</div>'}).join('')+'</div>';
   var b=s.bld.filter(function(x){return x.n||x.d||x.i});
   if(b.length)h+='<div class="bl">'+b.map(function(x){return '<div class="b">'+(x.i?'<img src="'+x.i+'">':'')+'<b>'+esc(x.n)+'</b><span>'+esc(x.d)+'</span></div>'}).join('')+'</div>';
-  c.innerHTML=h}
-$('png').onclick=function(){html2canvas($('card'),{backgroundColor:null,scale:1}).then(function(cv){var a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='showcase.png';a.click()})};
-trk();build();draw();
+  c.innerHTML=h;fit()}
+$('png').onclick=function(){var c=$('card'),p=$('pv'),t=c.style.transform,pc=p.style.cssText;c.style.transform='none';p.style.height='auto';p.style.overflow='visible';html2canvas(c,{backgroundColor:null,scale:1}).then(function(cv){var a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='showcase.png';a.click()}).finally(function(){c.style.transform=t;p.style.cssText=pc;fit()})};
+trk();build();draw();if(window.ResizeObserver)new ResizeObserver(function(){fit()}).observe($('card'));addEventListener('resize',fit);
 </script></body></html>
