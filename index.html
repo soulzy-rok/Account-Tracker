@@ -1,13 +1,19 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='29' fill='%23d1a03f' stroke='%234a300a' stroke-width='4'/%3E%3Ctext x='32' y='44' font-size='32' text-anchor='middle' fill='%233a2406'%3EK%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
 <title>RoK Personal Tracker</title>
 <style>
-:root{--night:#0e1829;--deep:#15233b;--line:#2b4162;--banner:#1d3a64;--parch:#eadfbe;--parch2:#dccfa4;--ink:#33260f;--brass:#d1a03f;--hi:#f0cf7a;--tx:#e8ecf4;--mut:#9db0cf;--pos:#7fdc9d;--posink:#1f6b3a;color-scheme:dark}
+:root{--night:#0e1829;--deep:#15233b;--line:#2b4162;--banner:#1d3a64;--deep2:#12203a;--glow:#1d3763;--inset:#0c1626;--parch:#eadfbe;--parch2:#dccfa4;--ink:#33260f;--brass:#d1a03f;--hi:#f0cf7a;--tx:#e8ecf4;--mut:#9db0cf;--pos:#7fdc9d;--posink:#1f6b3a;color-scheme:dark}
+[data-theme=ember]{--night:#1a0f0c;--deep:#2a1914;--deep2:#231410;--line:#5a3326;--banner:#5a2a1a;--glow:#7a3516;--inset:#160c09;--mut:#cdb4a5}
+[data-theme=dusk]{--night:#130f24;--deep:#201a3a;--deep2:#1a1530;--line:#433a73;--banner:#3a2d6b;--glow:#46368a;--inset:#0f0b1e;--mut:#b6add8}
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(1100px 480px at 50% -140px,#1d3763 0,transparent 70%),var(--night);color:var(--tx);font:16px/1.5 'Source Sans 3',system-ui,sans-serif;padding:20px 16px 70px;min-height:100vh}
+html{background:var(--night)}
+body::before{content:"";position:fixed;inset:0;z-index:-3;background:var(--bgimg,none) center/cover no-repeat}
+body::after{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background:radial-gradient(ellipse at 50% 40%,transparent 45%,rgba(0,0,0,.55)),radial-gradient(900px 420px at 50% -120px,var(--glow),transparent 70%),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50V16L28 0l28 16v34L28 66zM28 100L0 84V50M28 100l28-16V50' fill='none' stroke='%23d1a03f' stroke-opacity='.075'/%3E%3C/svg%3E"),linear-gradient(color-mix(in srgb,var(--night) calc(var(--dim,1)*100%),transparent),color-mix(in srgb,var(--night) calc(var(--dim,1)*100%),transparent))}
+body{margin:0;background:none;color:var(--tx);font:16px/1.5 'Source Sans 3',system-ui,sans-serif;padding:20px 16px 70px;min-height:100vh}
 main{max-width:1040px;margin:0 auto}
 h1,h2{font-family:Marcellus,Georgia,serif;font-weight:400}h1{font-size:28px;margin:0;letter-spacing:.02em}h2{font-size:20px;margin:0 0 12px;color:var(--hi)}
 .top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px}
@@ -17,20 +23,20 @@ h1,h2{font-family:Marcellus,Georgia,serif;font-weight:400}h1{font-size:28px;marg
 .tabs{display:flex;gap:4px;background:var(--deep);border:1px solid var(--line);border-radius:999px;padding:4px}
 .tab{border:0;border-radius:999px;padding:8px 22px;font:600 15px 'Source Sans 3',sans-serif;background:var(--brass);color:#2a1b05;cursor:pointer;transition:background .2s,color .2s}
 .tab.ghost{background:transparent;color:var(--mut)}.tab.ghost:hover{color:var(--tx);background:transparent}
-.hero{border:2px solid var(--brass);border-radius:20px;padding:22px;margin-bottom:16px;background:linear-gradient(160deg,var(--banner),#11213a 70%);box-shadow:inset 0 0 0 4px var(--night),inset 0 0 0 5px #7b5c20}
+.hero{border:2px solid var(--brass);border-radius:20px;padding:22px;margin-bottom:16px;background:linear-gradient(160deg,var(--banner),var(--deep2) 70%);box-shadow:inset 0 0 0 4px var(--night),inset 0 0 0 5px #7b5c20}
 .figs{display:flex;gap:18px 44px;flex-wrap:wrap;align-items:flex-end;margin-bottom:22px}
 .fig span{display:block;color:var(--mut);font-size:14px}.fig b{font:400 26px Marcellus,Georgia,serif;font-variant-numeric:tabular-nums}
 .fig:first-child b{font-size:clamp(34px,7vw,56px);color:var(--hi)}.fig b.up{color:var(--pos)}.empty{margin:0 0 4px;color:var(--mut)}
 .coins{display:grid;gap:12px}.tb{display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:center}
 .tl{display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums;flex-wrap:wrap}.tl small{color:var(--mut);font-size:14px}
-.trk{height:10px;background:#0b1424;border-radius:5px;overflow:hidden;margin-top:5px}
+.trk{height:10px;background:var(--inset);border-radius:5px;overflow:hidden;margin-top:5px}
 .trk i{display:block;height:100%;width:0;border-radius:5px;transition:width .9s cubic-bezier(.2,.7,.2,1)}
 .r1{background:#8a6a2a}.r2{background:#a98030}.r3{background:#c8922e}.r4{background:#e2ac40}.r5{background:#f4cb6a}
 .gain{min-width:100px;text-align:right;font-variant-numeric:tabular-nums;color:var(--pos);font-weight:600}.gain.na{color:var(--mut);font-weight:400;font-size:14px}
-.card{background:linear-gradient(180deg,var(--deep),#12203a);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
+.card{background:linear-gradient(180deg,var(--deep),var(--deep2));border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 label{display:block;font-size:14px;color:var(--mut);margin-bottom:3px}
-input,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#0c1626;color:var(--tx);font:inherit}
+input,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--inset);color:var(--tx);font:inherit}
 textarea{min-height:110px;font-size:14px}
 input:focus-visible,textarea:focus-visible,button:focus-visible,summary:focus-visible,.drop:focus-within{outline:2px solid var(--hi);outline-offset:2px}
 button{padding:9px 16px;border-radius:8px;border:1px solid var(--brass);background:var(--brass);color:#2a1b05;font:600 15px 'Source Sans 3',sans-serif;cursor:pointer;transition:transform .1s,background .2s}
@@ -57,12 +63,19 @@ tbody tr:hover{background:var(--parch2)}td.pos{color:var(--posink);font-weight:6
 #toasts{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:grid;gap:8px;z-index:9;width:min(560px,calc(100% - 24px))}
 .toast{background:var(--parch);color:var(--ink);border-left:5px solid var(--posink);border-radius:8px;padding:10px 14px;box-shadow:0 6px 24px rgba(0,0,0,.5);animation:up .25s ease-out;transition:opacity .3s}
 .toast.err{border-left-color:#a8342a}.toast.out{opacity:0}@keyframes up{from{transform:translateY(12px);opacity:0}}
+.seg{display:inline-flex;gap:2px;background:var(--inset);border:1px solid var(--line);border-radius:999px;padding:3px;margin-bottom:14px}
+.seg button{background:transparent;color:var(--mut);border:0;border-radius:999px;padding:5px 14px;font-size:14px}.seg button:hover{background:transparent;color:var(--tx)}.seg button.on{background:var(--brass);color:#2a1b05}
+.goal{display:grid;grid-template-columns:minmax(190px,270px) 1fr;gap:14px 20px;align-items:end;margin-top:22px;padding-top:18px;border-top:1px solid rgba(209,160,63,.3)}
+.gtrk{height:12px;border-radius:6px;background:var(--inset);overflow:hidden}.gtrk i{display:block;height:100%;width:0;background:linear-gradient(90deg,#a98030,#f4cb6a);border-radius:6px;transition:width .9s cubic-bezier(.2,.7,.2,1)}.goal .note{margin:6px 0 0}
+.sws{display:flex;gap:10px}.sw{width:34px;height:34px;border-radius:50%;padding:0;border:2px solid var(--line)}.sw:hover{filter:brightness(1.2)}
+.sw[data-th=night]{background:linear-gradient(135deg,#1d3a64,#0e1829)}.sw[data-th=ember]{background:linear-gradient(135deg,#7a3516,#1a0f0c)}.sw[data-th=dusk]{background:linear-gradient(135deg,#46368a,#130f24)}
+.sw[aria-pressed=true]{border-color:var(--hi);box-shadow:0 0 0 3px rgba(240,207,122,.3)}input[type=range]{accent-color:var(--brass);padding:0}
 input[type=file]{padding:6px}input[type=file]::file-selector-button{margin-right:10px;border:1px solid var(--brass);background:transparent;color:var(--hi);border-radius:6px;padding:5px 10px;font:600 14px 'Source Sans 3',sans-serif;cursor:pointer}input[type=file]::file-selector-button:hover{background:rgba(209,160,63,.16)}
-.pv{overflow:hidden;border:1px solid var(--line);border-radius:12px;background:#0b1424;margin-bottom:16px}
+.pv{overflow:hidden;border:1px solid var(--line);border-radius:12px;background:var(--inset);margin-bottom:16px}
 .cmd{border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px;background:rgba(255,255,255,.02)}
 details.cmd{padding:0}details.cmd>summary{padding:11px 14px;font:400 17px Marcellus,Georgia,serif;color:var(--hi)}
 details.cmd[open]>summary{border-bottom:1px solid var(--line);margin-bottom:12px}details.cmd>:not(summary){margin-left:14px;margin-right:14px}details.cmd>:last-child{margin-bottom:14px}
-@media (max-width:560px){.tb{grid-template-columns:40px 1fr}.gain{grid-column:2;text-align:left}.coin{width:40px;height:40px}.drop img{display:none}}
+@media (max-width:560px){.goal{grid-template-columns:1fr}.tb{grid-template-columns:40px 1fr}.gain{grid-column:2;text-align:left}.coin{width:40px;height:40px}.drop img{display:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 #card{width:1500px;padding:28px;color:#fff;background:#1a0e08 center/cover;display:flex;flex-wrap:wrap;gap:22px;font-family:system-ui,sans-serif}
 #card .pf{width:280px;background:rgba(20,12,8,.72);border-radius:18px;padding:20px;text-align:center}
@@ -82,7 +95,8 @@ details.cmd[open]>summary{border-bottom:1px solid var(--line);margin-bottom:12px
 <div id="toasts" aria-live="polite"></div>
 
 <section id="tr">
-<div class="hero"><div class="figs" id="sum"></div><div class="coins" id="tbars"></div></div>
+<div class="hero"><div class="figs" id="sum"></div><div class="seg" id="seg" role="group" aria-label="Tier bar view"><button data-v="share">Share of kill points</button><button data-v="gain">Gain since baseline</button></div><div class="coins" id="tbars"></div>
+<div class="goal" id="goalrow"><div><label for="goalv">Kill point goal</label><input id="goalv" inputmode="numeric" placeholder="e.g. 7,000,000,000"></div><div><div class="gtrk"><i id="gbar"></i></div><p class="note" id="gtxt"></p></div></div></div>
 <div class="card"><h2>Record a snapshot</h2>
 <label class="drop" id="drop" for="shot"><span class="ico">📜</span><span><b id="dzt">Drop a Kill Statistics screenshot here</b><small>Or click to choose a file, or paste with Ctrl+V. Open the popup by tapping the “i” next to Kill Points.</small></span><img id="thumb" alt="Last screenshot" hidden></label><input id="shot" type="file" accept="image/*" hidden>
 <div class="grid" style="margin-top:10px"><div><label>Kill points</label><input id="kpv" inputmode="numeric"></div><div><label>T1 kills</label><input id="t1v" inputmode="numeric"></div><div><label>T2 kills</label><input id="t2v" inputmode="numeric"></div><div><label>T3 kills</label><input id="t3v" inputmode="numeric"></div><div><label>T4 kills</label><input id="t4v" inputmode="numeric"></div><div><label>T5 kills</label><input id="t5v" inputmode="numeric"></div></div>
@@ -106,6 +120,10 @@ details.cmd[open]>summary{border-bottom:1px solid var(--line);margin-bottom:12px
 <p class="note">Per commander: add a gear/set image, then upload stat screenshots (scroll, instrument, flag, emblem, gear). Their text is read, shown by section, and the percentages are added up into total stats. Always check the text box for misreads. Don’t paste an existing total block, or it will be counted twice.</p></div>
 
 </section>
+<details class="card" id="look"><summary>Appearance</summary>
+<div class="row" style="align-items:center"><span class="note" style="margin:0">Theme</span><div class="sws" id="sws"><button class="sw" data-th="night" aria-label="Night blue"></button><button class="sw" data-th="ember" aria-label="Ember"></button><button class="sw" data-th="dusk" aria-label="Dusk"></button></div></div>
+<div class="grid" style="margin-top:12px"><div><label>Background image (optional)</label><input id="bgfile" type="file" accept="image/*"></div><div><label for="dim">Background dimming</label><input id="dim" type="range" min="30" max="95" value="60"></div></div>
+<div class="row"><button class="ghost" id="bgclear">Remove background image</button></div></details>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -196,10 +214,15 @@ function trk(){var a=S.snaps.slice().sort(function(x,y){return x.ts-y.ts}),base=
   function dl(x,y){return function(k){return g(x,k)!=null&&g(y,k)!=null?g(x,k)-g(y,k):null}}
   function row(n,f,p){return '<tr><td>'+n+'</td>'+TK.map(function(k){var v=f(k);return '<td'+(p?' class="pos"':'')+'>'+(v==null?'–':(p?sg(v):fmt(v)))+'</td>'}).join('')+'</tr>'}
   $('tcard').hidden=!last;
-  var cp=TK.map(function(k,i){return last&&last[k]!=null?Math.floor(WT[i]*last[k]):0}),cs=cp.reduce(function(x,y){return x+y},0)||1,gl=dl(last,base);
-  $('tbars').innerHTML=last&&TK.some(function(k){return last[k]!=null})?TK.map(function(k,i){var gv=gl(k);return '<div class="tb"><span class="coin">'+['I','II','III','IV','V'][i]+'</span><div><div class="tl"><span><b>'+(last[k]==null?'–':fmt(last[k]))+'</b> <small>T'+(i+1)+' kills</small></span><small>'+fmt(cp[i])+' kill points ('+(cp[i]/cs*100).toFixed(1)+'%)</small></div><div class="trk"><i class="r'+(i+1)+'" data-w="'+(cp[i]/cs*100).toFixed(1)+'"></i></div></div><span class="gain'+(gv==null?' na':'')+'">'+(gv==null?'no baseline':sg(gv))+'</span></div>'}).join(''):'';
+  var gl=dl(last,base),gm=S.view==='gain',cp=TK.map(function(k,i){if(gm){var q=gl(k);return q==null?0:Math.max(0,Math.floor(WT[i]*q))}return last&&last[k]!=null?Math.floor(WT[i]*last[k]):0}),cs=cp.reduce(function(x,y){return x+y},0)||1;
+  $('tbars').innerHTML=last&&TK.some(function(k){return last[k]!=null})?TK.map(function(k,i){var gv=gl(k);return '<div class="tb"><span class="coin">'+['I','II','III','IV','V'][i]+'</span><div><div class="tl"><span><b>'+(last[k]==null?'–':fmt(last[k]))+'</b> <small>T'+(i+1)+' kills</small></span><small>'+(gm?'+':'')+fmt(cp[i])+(gm?' kill points gained (':' kill points (')+(cp[i]/cs*100).toFixed(1)+'%)</small></div><div class="trk"><i class="r'+(i+1)+'" data-w="'+(cp[i]/cs*100).toFixed(1)+'"></i></div></div><span class="gain'+(gv==null?' na':'')+'">'+(gv==null?'no baseline':sg(gv))+'</span></div>'}).join(''):'';
   requestAnimationFrame(function(){requestAnimationFrame(function(){document.querySelectorAll('#tbars i').forEach(function(e){e.style.width=e.dataset.w+'%'})})});
   chart(a);count();
+  document.querySelectorAll('#seg button').forEach(function(b){b.classList.toggle('on',b.dataset.v===(S.view||'share'))});$('seg').hidden=!last;$('goalrow').hidden=!last;
+  if(last){var G=S.goal||0,pc=G?Math.min(100,last.kp/G*100):0,tx='';$('gbar').style.width=pc+'%';
+    if(G){var left=Math.max(0,G-last.kp);tx=left?fmt(left)+' kill points to go ('+pc.toFixed(1)+'% there).':'Goal reached.';
+      var span=(last.ts-base.ts)/864e5;if(left&&span>=0.25){var pd=(last.kp-base.kp)/span;if(pd>0)tx+=' At your pace since the baseline ('+fmt(Math.round(pd))+' per day), about '+Math.ceil(left/pd)+' days.'}else if(left)tx+=' Save another snapshot a few hours later to estimate your pace.'}
+    else tx='Set a goal to see your progress and pace.';$('gtxt').textContent=tx}
   $('trows').innerHTML=row('Current',function(k){return g(last,k)},0)+row('Gain since baseline',dl(last,base),1)+row('Last change',dl(last,prev),1);
   $('rows').innerHTML=a.slice().reverse().map(function(e,i,r){var p=r[i+1];
     return '<tr><td>'+new Date(e.ts).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'})+'</td>'+TK.map(function(k){return '<td>'+(e[k]==null?'–':fmt(e[k]))+'</td>'}).join('')+'<td>'+fmt(e.kp)+'</td><td class="pos">'+(p?sg(e.kp-p.kp):'–')+'</td><td>'+(e.power?fmt(e.power):'–')+'</td><td>'+(e.dead?fmt(e.dead):'–')+'</td><td><button class="ghost" data-del="'+e.ts+'">×</button></td></tr>'}).join('')}
@@ -283,5 +306,18 @@ function draw(){var s=S.sh,c=$('card');c.style.backgroundImage=s.bg?'url('+s.bg+
   if(b.length)h+='<div class="bl">'+b.map(function(x){return '<div class="b">'+(x.i?'<img src="'+x.i+'">':'')+'<b>'+esc(x.n)+'</b><span>'+esc(x.d)+'</span></div>'}).join('')+'</div>';
   c.innerHTML=h;fit()}
 $('png').onclick=function(){var c=$('card'),p=$('pv'),t=c.style.transform,pc=p.style.cssText;c.style.transform='none';p.style.height='auto';p.style.overflow='visible';html2canvas(c,{backgroundColor:null,scale:1}).then(function(cv){var a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='showcase.png';a.click()}).finally(function(){c.style.transform=t;p.style.cssText=pc;fit()})};
+function look(){var h=document.documentElement,th=S.theme||'night',img='';h.dataset.theme=th;
+  document.querySelectorAll('.sw').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.th===th)});
+  try{img=localStorage.getItem('rok-bg')||''}catch(e){}
+  h.style.setProperty('--bgimg',img?'url('+img+')':'none');$('dim').value=S.dim||60;dimv(img)}
+function dimv(img){document.documentElement.style.setProperty('--dim',img?(S.dim||60)/100:1)}
+$('sws').onclick=function(e){var t=e.target.dataset.th;if(t){S.theme=t;save();look()}};
+$('dim').oninput=function(){S.dim=+this.value;save();var i='';try{i=localStorage.getItem('rok-bg')}catch(e){}dimv(i)};
+$('bgfile').onchange=function(e){var f=e.target.files[0];if(!f)return;shrink(f,1600,.72,function(u){try{localStorage.setItem('rok-bg',u);look();msg('Background set.')}catch(x){msg('That image is too large for browser storage. Try a smaller one.',1)}});e.target.value=''};
+$('bgclear').onclick=function(){try{localStorage.removeItem('rok-bg')}catch(e){}look()};
+$('seg').onclick=function(e){var v=e.target.dataset.v;if(v){S.view=v;save();trk()}};
+$('goalv').oninput=function(){var n=cleanStatNumber(this.value);S.goal=n?+n:0;save();trk()};
+$('goalv').onchange=function(){this.value=S.goal?fmt(S.goal):''};
+$('goalv').value=S.goal?fmt(S.goal):'';look();
 trk();build();draw();if(window.ResizeObserver)new ResizeObserver(function(){fit()}).observe($('card'));addEventListener('resize',fit);
 </script></body></html>
